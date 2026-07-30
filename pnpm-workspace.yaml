@@ -1,0 +1,11 @@
+packages:
+  - 'apps/*'
+
+allowBuilds:
+  '@swc/core': true
+  cpu-features: false
+  esbuild: true
+  nx: true
+  protobufjs: false
+  ssh2: false
+  unrs-resolver: true
