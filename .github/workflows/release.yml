@@ -1,0 +1,53 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    if: ${{ !startsWith(github.event.head_commit.message, 'chore(release)') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          # Need full git history for nx release to work properly
+          fetch-depth: 0
+          filter: tree:0
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: lts/*
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Pull latest main (a previous release run may have pushed)
+        run: git pull --rebase origin main
+
+      # Nx errors out when a release group matches no projects, which is the case
+      # until the first app lands.
+      - name: Check for releasable projects
+        id: projects
+        run: echo "count=$(find apps -mindepth 2 -maxdepth 2 -name package.json | wc -l | tr -d ' ')" >> "$GITHUB_OUTPUT"
+
+      # Apps are deployed, not published to npm: version, tag and changelog only.
+      - if: steps.projects.outputs.count != '0'
+        run: pnpm exec nx release --skip-publish
+        env:
+          GITHUB_TOKEN: ${{ github.token }} # Needed for pushing release commits and creating GitHub releases.

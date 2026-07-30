@@ -1,0 +1,14 @@
+name: Nx migrate
+
+on:
+  pull_request:
+    paths:
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+
+jobs:
+  nx-migrate:
+    uses: netwerk-digitaal-erfgoed/workflows/.github/workflows/nx-migrate.yml@main
+    with:
+      package-manager: pnpm
+    secrets: inherit
