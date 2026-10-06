@@ -1,0 +1,30 @@
+PREFIX picom: <https://personsincontext.org/model#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX schema: <http://schema.org/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+CONSTRUCT {
+    ?uri a skos:Concept, schema:Person ;
+        ?constructedProperty ?value ;
+        skos:hiddenLabel ?hiddenLabel .
+}
+# See the search query, queries/search/wo2personen.rq, for how the properties are read.
+WHERE {
+    VALUES ?uri { ?uris }
+    ?uri a picom:PersonReconstruction ;
+        ?property ?value .
+    VALUES (?property ?constructedProperty) {
+        (schema:name skos:prefLabel)
+        (schema:alternateName skos:altLabel)
+        (schema:sameAs skos:exactMatch)
+        (schema:birthDate schema:birthDate)
+        (schema:deathDate schema:deathDate)
+        (schema:birthPlace schema:birthPlace)
+        (schema:deathPlace schema:deathPlace)
+    }
+
+    OPTIONAL {
+        ?uri prov:wasDerivedFrom ?observation .
+        ?observation schema:name|schema:alternateName ?hiddenLabel .
+    }
+}

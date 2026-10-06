@@ -1,0 +1,62 @@
+PREFIX picom: <https://personsincontext.org/model#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX ql: <http://qlever.cs.uni-freiburg.de/builtin-functions/>
+PREFIX schema: <http://schema.org/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+CONSTRUCT {
+    ?uri a skos:Concept, schema:Person ;
+        ?constructedProperty ?value ;
+        skos:hiddenLabel ?hiddenLabel .
+}
+WHERE {
+    {
+        # The text index covers every literal of every resource, so a search for ‘beverwijk’
+        # also hits the 953 persons born or deceased there. Only a hit on a name counts.
+        SELECT ?uri (MIN(STRLEN(STR(?matchedName))) AS ?matchedNameLength) WHERE {
+            ?text ql:contains-word ?query ;
+                ql:contains-entity ?hit .
+            ?hit schema:name|schema:alternateName ?matchedName .
+            FILTER(STR(?matchedName) = STR(?text))
+            # A reconstruction is the person; an observation is one mention of that person in
+            # a source. A hit on an observation’s spelling finds the reconstruction derived
+            # from it, so every result is a reconstruction.
+            {
+                ?hit a picom:PersonReconstruction .
+                BIND(?hit AS ?uri)
+            }
+            UNION
+            {
+                ?uri prov:wasDerivedFrom ?hit ;
+                    a picom:PersonReconstruction .
+            }
+        }
+        GROUP BY ?uri
+        # A matched name contains every search word, so the shortest ones are the closest
+        # matches. Without an order, a common name returns an arbitrary part of its hits.
+        ORDER BY ?matchedNameLength ?uri
+        #LIMIT#
+    }
+
+    # The person’s own properties in one pattern, renamed where the Network of Terms reads another
+    # property. A UNION branch per property is evaluated for the whole dataset before it is joined
+    # to the results, which took a search from 1 to 19 seconds. A place is stated as a name and,
+    # for some persons, as a WO2 Thesaurus location beside it, with nothing pairing the two; both
+    # are constructed as the source states them.
+    ?uri ?property ?value .
+    VALUES (?property ?constructedProperty) {
+        (schema:name skos:prefLabel)
+        (schema:alternateName skos:altLabel)
+        (schema:sameAs skos:exactMatch)
+        (schema:birthDate schema:birthDate)
+        (schema:deathDate schema:deathDate)
+        (schema:birthPlace schema:birthPlace)
+        (schema:deathPlace schema:deathPlace)
+    }
+
+    # Spellings found in the sources: matched on, never shown.
+    OPTIONAL {
+        ?uri prov:wasDerivedFrom ?observation .
+        ?observation schema:name|schema:alternateName ?hiddenLabel .
+    }
+}

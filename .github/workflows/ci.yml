@@ -36,4 +36,5 @@ jobs:
       # Typecheck all apps to catch transitive errors not in the affected graph.
       - run: pnpm exec nx run-many -t typecheck
 
-      - run: pnpm exec nx affected -t lint test build
+      # docker:build catches a base image bump that no longer builds before it is merged.
+      - run: pnpm exec nx affected -t lint test build docker:build

@@ -1,0 +1,37 @@
+{
+  "name": "@netwerk-digitaal-erfgoed/network-of-persons-reconciliation",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Network of Persons Reconciliation Service API: the Network of Terms reconciliation service with the Network of Persons catalogue",
+  "license": "EUPL-1.2",
+  "devDependencies": {
+    "@netwerk-digitaal-erfgoed/network-of-persons-catalog": "workspace:*"
+  },
+  "nx": {
+    "tags": [
+      "release:docker"
+    ],
+    "release": {
+      "docker": {
+        "repositoryName": "network-of-persons-reconciliation"
+      }
+    },
+    "targets": {
+      "docker:build": {
+        "options": {
+          "command": "docker build --file Dockerfile ../../packages/network-of-persons-catalog/catalog"
+        }
+      },
+      "test": {
+        "executor": "nx:run-commands",
+        "dependsOn": [
+          "docker:build"
+        ],
+        "options": {
+          "cwd": "{projectRoot}",
+          "command": "../../packages/network-of-persons-catalog/smoke-test.sh apps-network-of-persons-reconciliation /reconcile/https://data.niod.nl/WO2_personen"
+        }
+      }
+    }
+  }
+}
