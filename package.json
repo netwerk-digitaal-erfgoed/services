@@ -19,6 +19,7 @@
     "@commitlint/cli": "^21.2.3",
     "@commitlint/config-conventional": "^21.2.3",
     "@eslint/js": "^10.0.1",
+    "@nx/docker": "23.2.1",
     "@nx/esbuild": "23.2.1",
     "@nx/eslint": "23.2.1",
     "@nx/eslint-plugin": "23.2.1",
@@ -41,7 +42,7 @@
     "prettier": "^3.9.9",
     "prettier-plugin-packagejson": "^3.0.2",
     "tslib": "^2.3.0",
-    "typescript": "~7.0.2",
+    "typescript": "~6.0.3",
     "typescript-eslint": "^8.70.1",
     "vite": "^8.3.1",
     "vitest": "~5.0.2"

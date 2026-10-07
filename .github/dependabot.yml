@@ -5,6 +5,17 @@ updates:
     schedule:
       interval: 'weekly'
 
+  # The apps’ Dockerfiles pin the Network of Terms image they derive from.
+  - package-ecosystem: 'docker'
+    directories:
+      - '/apps/*'
+    schedule:
+      interval: 'daily'
+    groups:
+      network-of-terms: # One PR for all apps, so they run the same upstream version.
+        patterns:
+          - '*'
+
   - package-ecosystem: 'npm'
     directory: '/'
     # Check daily, but hold most updates for a cooldown so they don’t churn.
@@ -17,6 +28,19 @@ updates:
       default-days: 7
       exclude:
         - '@lde/*'
+    ignore:
+      # Nx decides which versions of these it supports: nx migrate bumps them on
+      # the Nx pull request.
+      - dependency-name: 'typescript'
+      - dependency-name: '@swc/core'
+      - dependency-name: '@swc-node/register'
+      - dependency-name: '@eslint/*'
+      - dependency-name: '@typescript-eslint/*'
+      - dependency-name: 'eslint'
+      - dependency-name: 'typescript-eslint'
+      - dependency-name: 'vite'
+      - dependency-name: 'vitest'
+      - dependency-name: '@vitest/*'
     groups:
       lde: # Our own LDE packages; bump together and fast (no cooldown).
         patterns:
@@ -25,18 +49,6 @@ updates:
         patterns:
           - 'nx'
           - '@nx/*'
-          # Pinned as Nx peer dependencies, so they have to move with it.
-          - '@swc/core'
-          - '@swc-node/register'
-          - 'vite'
-          - 'vitest'
-          - '@vitest/*'
-      eslint:
-        patterns:
-          - '@eslint/*'
-          - '@typescript-eslint/*'
-          - 'eslint'
-          - 'typescript-eslint'
       all-other-npm: # Catch-all (listed last, so the specific groups above win): collapse
         # every remaining npm update into one PR instead of a daily trickle of small PRs.
         patterns:

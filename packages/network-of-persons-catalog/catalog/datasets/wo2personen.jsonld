@@ -1,0 +1,67 @@
+{
+  "@context": "https://schema.org",
+  "@id": "https://data.niod.nl/WO2_personen",
+  "@type": "Dataset",
+  "name": [
+    {
+      "@language": "en",
+      "@value": "WW2 persons"
+    },
+    {
+      "@language": "nl",
+      "@value": "WO2-personen"
+    }
+  ],
+  "genre": [
+    {
+      "@id": "https://data.cultureelerfgoed.nl/termennetwerk/onderwerpen/Personen"
+    }
+  ],
+  "creator": [
+    {
+      "@id": "https://www.wo2net.nl"
+    }
+  ],
+  "url": [{ "@id": "https://n2t.net/ark:/59857/" }],
+  "mainEntityOfPage": [{ "@id": "https://www.oorlogsbronnen.nl/personen" }],
+  "description": [
+    {
+      "@language": "en",
+      "@value": "Persons mentioned in the World War II archives"
+    },
+    {
+      "@language": "nl",
+      "@value": "Personen die voorkomen in de bronnen over de Tweede Wereldoorlog"
+    }
+  ],
+  "inLanguage": "nl",
+  "distribution": [
+    {
+      "@id": "https://www.ldmax.nl/datasets/wo2-oorlogsbronnen",
+      "@type": "DataDownload",
+      "contentUrl": "https://sparql.ldmax.nl/wo2-oorlogsbronnen",
+      "encodingFormat": "application/sparql-query",
+      "potentialAction": [
+        {
+          "@type": "SearchAction",
+          "query": "file://../queries/search/wo2personen.rq"
+        },
+        {
+          "@type": "FindAction",
+          "query": "file://../queries/lookup/wo2personen.rq"
+        },
+        {
+          "@type": "Action",
+          "target": {
+            "@type": "EntryPoint",
+            "actionApplication": {
+              "@id": "https://reconciliation-api.github.io/specs/latest/",
+              "@type": "SoftwareApplication"
+            },
+            "urlTemplate": "https://personennetwerk.netwerkdigitaalerfgoed.nl/reconcile/{dataset}"
+          }
+        }
+      ]
+    }
+  ]
+}

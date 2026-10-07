@@ -6,6 +6,19 @@ platform, deployed on the NDE/SURF Kubernetes infrastructure.
 This is an [Nx](https://nx.dev) monorepo using pnpm workspaces:
 
 - **`apps/*`** – deployable services. They are not published to npm.
+- **`packages/*`** – libraries that the services share, such as a catalogue that
+  more than one image is built from. They are not published either.
+
+## Services
+
+- **Network of Persons** (proof of concept) – search and reconciliation over
+  person datasets at <https://personennetwerk.netwerkdigitaalerfgoed.nl>. It
+  runs the [Network of Terms](https://github.com/netwerk-digitaal-erfgoed/network-of-terms)
+  images with its own catalogue,
+  [`packages/network-of-persons-catalog`](packages/network-of-persons-catalog/catalog),
+  so it has no code of its own: `apps/network-of-persons-graphql` and
+  `apps/network-of-persons-reconciliation` are each a Dockerfile that replaces
+  the catalogue in the upstream image.
 
 ## Develop
 
@@ -44,8 +57,12 @@ set `environment: 'node'` (the generator defaults to `jsdom`), and delete the
 Every push to `main` runs `.github/workflows/release.yml`, which uses
 [Nx release](https://nx.dev/features/manage-releases) with conventional commits
 to version each app independently and write its changelog and GitHub release.
-Nothing is published to npm; releases exist to track what gets deployed. A
-breaking change must be marked with `!` or a `BREAKING CHANGE:` footer.
+Nothing is published to npm. An app with a `Dockerfile` and the `release:docker`
+tag is built with `@nx/docker` and pushed to
+`ghcr.io/netwerk-digitaal-erfgoed/<repositoryName>`, tagged with the release
+time and commit (`20261006093739-f911e19`); Flux on the cluster rolls out the
+newest tag. A breaking change must be marked with `!` or a `BREAKING CHANGE:`
+footer.
 
 To preview a release locally:
 

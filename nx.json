@@ -17,6 +17,13 @@
   },
   "plugins": [
     {
+      "plugin": "@nx/docker",
+      "options": {
+        "buildTarget": "docker:build",
+        "runTarget": "docker:run"
+      }
+    },
+    {
       "plugin": "@nx/js/typescript",
       "options": {
         "typecheck": {
@@ -85,6 +92,19 @@
         }
       },
       "automaticFromRef": true
+    },
+    "groups": {
+      "apps": {
+        "projects": ["tag:release:docker"],
+        "projectsRelationship": "independent",
+        "docker": {
+          "skipVersionActions": true,
+          "registryUrl": "ghcr.io/netwerk-digitaal-erfgoed",
+          "versionSchemes": {
+            "production": "{currentDate|YYYYMMDDHHmmss}-{shortCommitSha}"
+          }
+        }
+      }
     }
   },
   "sync": {

@@ -11,6 +11,7 @@ concurrency:
 
 permissions:
   contents: write
+  packages: write
 
 jobs:
   release:
@@ -40,14 +41,28 @@ jobs:
       - name: Pull latest main (a previous release run may have pushed)
         run: git pull --rebase origin main
 
-      # Nx errors out when a release group matches no projects, which is the case
-      # until the first app lands.
-      - name: Check for releasable projects
-        id: projects
-        run: echo "count=$(find apps -mindepth 2 -maxdepth 2 -name package.json | wc -l | tr -d ' ')" >> "$GITHUB_OUTPUT"
+      - name: Log in to the container registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
 
-      # Apps are deployed, not published to npm: version, tag and changelog only.
-      - if: steps.projects.outputs.count != '0'
-        run: pnpm exec nx release --skip-publish
+      - uses: nrwl/nx-set-shas@v5
+
+      - run: pnpm exec nx affected -t docker:build
+
+      # Apps are deployed, not published to npm: each release tags the app’s Docker image and
+      # pushes it to the registry. Only affected apps are released, because ‘nx release’ tags
+      # an image for every project it processes and the step above builds only the affected ones.
+      - run: |
+          # Without pipefail, a failing ‘nx show projects’ reads as ‘no apps affected’.
+          set -o pipefail
+          AFFECTED=$(pnpm exec nx show projects --affected --projects "tag:release:docker" --json | jq -r 'join(",")')
+          if [ -n "$AFFECTED" ]; then
+            pnpm exec nx release --yes --projects="$AFFECTED" --dockerVersionScheme=production
+          else
+            echo "No apps affected; skipping release."
+          fi
         env:
           GITHUB_TOKEN: ${{ github.token }} # Needed for pushing release commits and creating GitHub releases.
