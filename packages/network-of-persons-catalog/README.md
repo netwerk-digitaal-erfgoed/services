@@ -2,7 +2,12 @@
 
 The catalogue of the Network of Persons, a proof of concept that runs the
 [Network of Terms](https://github.com/netwerk-digitaal-erfgoed/network-of-terms)
-software over person datasets instead of terminology sources.
+software over person datasets instead of terminology sources. It holds three
+datasets, all in the Persons in Context (PiCo) model: the WO2-personen of
+WO2Net, the person reconstructions of
+[Open Archieven](https://www.openarchieven.nl/) and the person reconstructions
+in the knowledge graph of the
+[Gouda Tijdmachine](https://www.goudatijdmachine.nl/).
 
 The format is the Network of Terms’: see its
 [catalogue documentation](https://github.com/netwerk-digitaal-erfgoed/network-of-terms/tree/master/packages/catalog)
@@ -11,10 +16,19 @@ for the dataset descriptions and the query conventions.
 ```
 catalog/
 ├── publishers.jsonld
-├── datasets/wo2personen.jsonld
+├── datasets/
+│   ├── gtm-pico-recon.jsonld
+│   ├── oa-pico-recon.jsonld
+│   └── wo2personen.jsonld
 └── queries/
-    ├── search/wo2personen.rq
-    └── lookup/wo2personen.rq
+    ├── search/
+    │   ├── gtm-pico-recon.rq
+    │   ├── oa-pico-recon.rq
+    │   └── wo2personen.rq
+    └── lookup/
+        ├── gtm-pico-recon.rq
+        ├── oa-pico-recon.rq
+        └── wo2personen.rq
 ```
 
 ## How the catalogue is deployed

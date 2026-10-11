@@ -1,0 +1,54 @@
+PREFIX gtm: <https://www.goudatijdmachine.nl/def#>
+PREFIX picom: <https://personsincontext.org/model#>
+PREFIX pnv: <https://w3id.org/pnv#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sdo: <https://schema.org/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+CONSTRUCT {
+    ?uri a skos:Concept, sdo:Person ;
+        skos:prefLabel ?prefLabel ;
+        skos:hiddenLabel ?hiddenLabel ;
+        sdo:givenName ?givenName ;
+        sdo:familyName ?familyName ;
+        sdo:birthDate ?birthDate ;
+        sdo:deathDate ?deathDate ;
+        sdo:birthPlace ?birthPlace ;
+        sdo:deathPlace ?deathPlace ;
+        sdo:hasOccupation ?occupation ;
+        skos:related ?related_uri ;
+        rdfs:seeAlso ?observation ;
+        rdfs:seeAlso ?treeMatch .
+    ?birthPlace sdo:name ?birthPlaceName .
+    ?deathPlace sdo:name ?deathPlaceName .
+    ?related_uri skos:prefLabel ?related_prefLabel .
+}
+# See the search query, queries/search/gtm-pico-recon.rq, for how the properties are read.
+WHERE {
+    VALUES ?uri { ?uris }
+    ?uri a picom:PersonReconstruction .
+
+    {
+        { ?uri sdo:name ?prefLabel }
+        UNION { ?uri pnv:hasName/pnv:givenName ?givenName }
+        UNION {
+            ?uri pnv:hasName ?name .
+            ?name pnv:baseSurname ?baseSurname .
+            OPTIONAL { ?name pnv:surnamePrefix ?surnamePrefix }
+            BIND(COALESCE(CONCAT(?surnamePrefix, " ", ?baseSurname), ?baseSurname) AS ?familyName)
+        }
+        UNION { ?uri sdo:birthDate ?birthDate }
+        UNION { ?uri sdo:deathDate ?deathDate }
+        UNION { ?uri sdo:birthPlace ?birthPlace . ?birthPlace sdo:name ?birthPlaceName }
+        UNION { ?uri sdo:deathPlace ?deathPlace . ?deathPlace sdo:name ?deathPlaceName }
+        UNION { ?uri sdo:hasOccupation ?occupation }
+        UNION {
+            ?uri sdo:spouse|sdo:parent|sdo:children ?related_uri .
+            ?related_uri sdo:name ?related_prefLabel .
+        }
+        UNION { ?uri prov:wasDerivedFrom ?observation }
+        UNION { ?uri prov:wasDerivedFrom/sdo:name ?hiddenLabel }
+        UNION { ?uri gtm:treeMatch ?treeMatch }
+    }
+}

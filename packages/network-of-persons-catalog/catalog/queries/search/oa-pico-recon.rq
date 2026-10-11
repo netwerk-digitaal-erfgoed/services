@@ -1,0 +1,76 @@
+PREFIX picom: <https://personsincontext.org/model#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX ql: <http://qlever.cs.uni-freiburg.de/builtin-functions/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sdo: <https://schema.org/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+# The source uses the https://schema.org/ namespace; the Network of Terms reads both, so it is kept.
+CONSTRUCT {
+    ?uri a skos:Concept, sdo:Person ;
+        skos:prefLabel ?prefLabel ;
+        skos:altLabel ?altLabel ;
+        skos:scopeNote ?description ;
+        sdo:givenName ?givenName ;
+        sdo:familyName ?familyName ;
+        sdo:birthDate ?birthDate ;
+        sdo:deathDate ?deathDate ;
+        sdo:birthPlace ?birthPlace ;
+        sdo:deathPlace ?deathPlace ;
+        sdo:hasOccupation ?occupation ;
+        skos:related ?related_uri ;
+        rdfs:seeAlso ?observation .
+    ?related_uri skos:prefLabel ?related_prefLabel .
+}
+WHERE {
+    {
+        # QLever’s text index covers every literal, so a search for ‘breda’ also hits the persons
+        # born there and the descriptions that mention it. ql:contains-entity binds the matched
+        # literal itself; joining it to sdo:name makes only a hit on a name count.
+        # A matched name contains every search word, so the shortest ones are the closest matches.
+        # A reconstruction has several name spellings and no canonical one; the same grouping
+        # picks the alphabetically first as the preferred label, the others become altLabels.
+        SELECT ?uri (MIN(STRLEN(STR(?matchedName))) AS ?matchedNameLength) (MIN(?name) AS ?prefLabel)
+        WHERE {
+            ?text ql:contains-word ?query ;
+                ql:contains-entity ?matchedName .
+            ?uri sdo:name ?matchedName ;
+                a picom:PersonReconstruction ;
+                sdo:name ?name .
+        }
+        GROUP BY ?uri
+        ORDER BY ?matchedNameLength ?uri
+        #LIMIT#
+    }
+
+    # One UNION branch per multi-valued property, and not an OPTIONAL group: see “One UNION branch
+    # per multi-valued property” in the Network of Terms catalog README. The first branch repeats a
+    # pattern every result matches, so a person without any property still comes through.
+    {
+        { ?uri a picom:PersonReconstruction }
+        UNION { ?uri sdo:name ?altLabel }
+        UNION { ?uri sdo:givenName ?givenName }
+        UNION { ?uri sdo:familyName ?familyName }
+        UNION { ?uri sdo:birthDate ?birthDate }
+        UNION { ?uri sdo:deathDate ?deathDate }
+        # Places and occupations are stated as names only, which the Network of Terms reads as
+        # entities without a URI.
+        UNION { ?uri sdo:birthPlace ?birthPlace }
+        UNION { ?uri sdo:deathPlace ?deathPlace }
+        UNION { ?uri sdo:hasOccupation ?occupation }
+        UNION { ?uri sdo:description ?description }
+        # Family members are reconstructions in the same dataset. A relative carries each of its
+        # name spellings as a label.
+        UNION {
+            ?uri sdo:spouse|sdo:parent|sdo:children|sdo:sibling ?related_uri .
+            ?related_uri sdo:name ?related_prefLabel .
+        }
+        # The person observations (mentions in records) the reconstruction was derived from. They
+        # are not in this dataset, but their URIs dereference on openarchieven.nl.
+        UNION { ?uri prov:wasDerivedFrom ?observation }
+    }
+
+    # The preferred name is not also an alternative one. This is a top-level filter because a
+    # filter inside the UNION branch would not see ?prefLabel, which the subquery binds.
+    FILTER(!BOUND(?altLabel) || ?altLabel != ?prefLabel)
+}

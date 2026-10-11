@@ -1,0 +1,54 @@
+PREFIX picom: <https://personsincontext.org/model#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sdo: <https://schema.org/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+CONSTRUCT {
+    ?uri a skos:Concept, sdo:Person ;
+        skos:prefLabel ?prefLabel ;
+        skos:altLabel ?altLabel ;
+        skos:scopeNote ?description ;
+        sdo:givenName ?givenName ;
+        sdo:familyName ?familyName ;
+        sdo:birthDate ?birthDate ;
+        sdo:deathDate ?deathDate ;
+        sdo:birthPlace ?birthPlace ;
+        sdo:deathPlace ?deathPlace ;
+        sdo:hasOccupation ?occupation ;
+        skos:related ?related_uri ;
+        rdfs:seeAlso ?observation .
+    ?related_uri skos:prefLabel ?related_prefLabel .
+}
+# See the search query, queries/search/oa-pico-recon.rq, for how the properties are read.
+WHERE {
+    {
+        # The alphabetically first name spelling is the preferred label, the others are altLabels.
+        SELECT ?uri (MIN(?name) AS ?prefLabel) WHERE {
+            VALUES ?uri { ?uris }
+            ?uri a picom:PersonReconstruction ;
+                sdo:name ?name .
+        }
+        GROUP BY ?uri
+    }
+
+    {
+        { ?uri a picom:PersonReconstruction }
+        UNION { ?uri sdo:name ?altLabel }
+        UNION { ?uri sdo:givenName ?givenName }
+        UNION { ?uri sdo:familyName ?familyName }
+        UNION { ?uri sdo:birthDate ?birthDate }
+        UNION { ?uri sdo:deathDate ?deathDate }
+        UNION { ?uri sdo:birthPlace ?birthPlace }
+        UNION { ?uri sdo:deathPlace ?deathPlace }
+        UNION { ?uri sdo:hasOccupation ?occupation }
+        UNION { ?uri sdo:description ?description }
+        UNION {
+            ?uri sdo:spouse|sdo:parent|sdo:children|sdo:sibling ?related_uri .
+            ?related_uri sdo:name ?related_prefLabel .
+        }
+        UNION { ?uri prov:wasDerivedFrom ?observation }
+    }
+
+    FILTER(!BOUND(?altLabel) || ?altLabel != ?prefLabel)
+}

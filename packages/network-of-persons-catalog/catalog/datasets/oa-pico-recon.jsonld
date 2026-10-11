@@ -1,0 +1,70 @@
+{
+  "@context": "https://schema.org",
+  "@id": "https://www.openarchieven.nl/id/dataset_reconstructions",
+  "@type": "Dataset",
+  "name": [
+    {
+      "@language": "en",
+      "@value": "Open Archives Person Reconstructions"
+    },
+    {
+      "@language": "nl",
+      "@value": "Open Archieven Persoonsreconstructies"
+    }
+  ],
+  "genre": [
+    {
+      "@id": "https://data.cultureelerfgoed.nl/termennetwerk/onderwerpen/Personen"
+    }
+  ],
+  "creator": [
+    {
+      "@id": "https://www.openarchieven.nl/"
+    }
+  ],
+  "url": [{ "@id": "https://www.openarchieven.nl/id/reconstruction_" }],
+  "mainEntityOfPage": [
+    { "@id": "https://www.openarchieven.nl/datasets/reconstructions" }
+  ],
+  "description": [
+    {
+      "@language": "en",
+      "@value": "Reconstructions of historical persons, each bringing together the mentions of that person in the records aggregated by Open Archives, in the Persons in Context (PiCo) model"
+    },
+    {
+      "@language": "nl",
+      "@value": "Reconstructies van historische personen, elk een samenvoeging van de vermeldingen van die persoon in de akten die Open Archieven ontsluit, in het Persons in Context (PiCo) model"
+    }
+  ],
+  "inLanguage": "nl",
+  "license": { "@id": "https://creativecommons.org/licenses/by-sa/4.0/" },
+  "distribution": [
+    {
+      "@id": "https://sparql.openarchieven.nl/oa-pico-recon",
+      "@type": "DataDownload",
+      "contentUrl": "https://sparql.openarchieven.nl/oa-pico-recon",
+      "encodingFormat": "application/sparql-query",
+      "potentialAction": [
+        {
+          "@type": "SearchAction",
+          "query": "file://../queries/search/oa-pico-recon.rq"
+        },
+        {
+          "@type": "FindAction",
+          "query": "file://../queries/lookup/oa-pico-recon.rq"
+        },
+        {
+          "@type": "Action",
+          "target": {
+            "@type": "EntryPoint",
+            "actionApplication": {
+              "@id": "https://reconciliation-api.github.io/specs/latest/",
+              "@type": "SoftwareApplication"
+            },
+            "urlTemplate": "https://personennetwerk.netwerkdigitaalerfgoed.nl/reconcile/{dataset}"
+          }
+        }
+      ]
+    }
+  ]
+}
