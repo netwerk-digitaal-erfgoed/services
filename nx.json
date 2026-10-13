@@ -84,8 +84,12 @@
         "skipLockFileUpdate": true
       }
     },
+    "git": {
+      "commit": false
+    },
     "changelog": {
       "projectChangelogs": {
+        "file": false,
         "createRelease": "github",
         "renderOptions": {
           "authors": false
