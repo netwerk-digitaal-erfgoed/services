@@ -56,8 +56,10 @@ set `environment: 'node'` (the generator defaults to `jsdom`), and delete the
 
 Every push to `main` runs `.github/workflows/release.yml`, which uses
 [Nx release](https://nx.dev/features/manage-releases) with conventional commits
-to version each app independently and write its changelog and GitHub release.
-Nothing is published to npm. An app with a `Dockerfile` and the `release:docker`
+to version each app independently and publish its changelog as a GitHub
+release. The release only pushes a tag: `main` accepts changes through pull
+requests alone, so no release commit or `CHANGELOG.md` is written. Nothing is
+published to npm. An app with a `Dockerfile` and the `release:docker`
 tag is built with `@nx/docker` and pushed to
 `ghcr.io/netwerk-digitaal-erfgoed/<repositoryName>`, tagged with the release
 time and commit (`20261006093739-f911e19`); Flux on the cluster rolls out the
