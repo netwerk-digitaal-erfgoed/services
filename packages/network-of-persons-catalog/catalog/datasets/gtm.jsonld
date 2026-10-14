@@ -1,0 +1,70 @@
+{
+  "@context": "https://schema.org",
+  "@id": "https://n2t.net/ark:/60537/bD64Hu",
+  "@type": "Dataset",
+  "name": [
+    {
+      "@language": "en",
+      "@value": "Gouda Time Machine Knowledge Graph: person reconstructions"
+    },
+    {
+      "@language": "nl",
+      "@value": "Gouda Tijdmachine Kennisgraaf: persoonsreconstructies"
+    }
+  ],
+  "genre": [
+    {
+      "@id": "https://data.cultureelerfgoed.nl/termennetwerk/onderwerpen/Personen"
+    }
+  ],
+  "creator": [
+    {
+      "@id": "https://www.goudatijdmachine.nl"
+    }
+  ],
+  "url": [{ "@id": "https://www.goudatijdmachine.nl/id/reconstructie-" }],
+  "mainEntityOfPage": [
+    { "@id": "https://n2t.net/ark:/60537/b03ndm7" }
+  ],
+  "description": [
+    {
+      "@language": "en",
+      "@value": "The person reconstructions in the Gouda Time Machine knowledge graph: historical persons of Gouda, each bringing together the mentions of that person in the records of the Midden-Holland Regional Archive and Open Archives, in the Persons in Context (PiCo) model"
+    },
+    {
+      "@language": "nl",
+      "@value": "De persoonsreconstructies in de kennisgraaf van de Gouda Tijdmachine: historische Goudse personen, elk een samenvoeging van de vermeldingen van die persoon in de akten van het Streekarchief Midden-Holland en Open Archieven, in het Persons in Context (PiCo) model"
+    }
+  ],
+  "inLanguage": "nl",
+  "license": { "@id": "https://creativecommons.org/publicdomain/zero/1.0/" },
+  "distribution": [
+    {
+      "@id": "https://n2t.net/ark:/60537/b0044kp",
+      "@type": "DataDownload",
+      "contentUrl": "https://sparql.goudatijdmachine.nl/",
+      "encodingFormat": "application/sparql-query",
+      "potentialAction": [
+        {
+          "@type": "SearchAction",
+          "query": "file://../queries/search/gtm.rq"
+        },
+        {
+          "@type": "FindAction",
+          "query": "file://../queries/lookup/gtm.rq"
+        },
+        {
+          "@type": "Action",
+          "target": {
+            "@type": "EntryPoint",
+            "actionApplication": {
+              "@id": "https://reconciliation-api.github.io/specs/latest/",
+              "@type": "SoftwareApplication"
+            },
+            "urlTemplate": "https://personennetwerk.netwerkdigitaalerfgoed.nl/reconcile/{dataset}"
+          }
+        }
+      ]
+    }
+  ]
+}

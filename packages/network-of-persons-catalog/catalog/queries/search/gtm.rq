@@ -1,0 +1,97 @@
+PREFIX gtm: <https://www.goudatijdmachine.nl/def#>
+PREFIX picom: <https://personsincontext.org/model#>
+PREFIX pnv: <https://w3id.org/pnv#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX ql: <http://qlever.cs.uni-freiburg.de/builtin-functions/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sdo: <https://schema.org/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+# Only the person reconstructions of the knowledge graph are served; the source uses the
+# https://schema.org/ namespace, which the Network of Terms reads as well.
+CONSTRUCT {
+    ?uri a skos:Concept, sdo:Person ;
+        skos:prefLabel ?prefLabel ;
+        skos:hiddenLabel ?hiddenLabel ;
+        sdo:givenName ?givenName ;
+        sdo:familyName ?familyName ;
+        sdo:birthDate ?birthDate ;
+        sdo:deathDate ?deathDate ;
+        sdo:birthPlace ?birthPlace ;
+        sdo:deathPlace ?deathPlace ;
+        sdo:hasOccupation ?occupation ;
+        skos:related ?related_uri ;
+        rdfs:seeAlso ?observation ;
+        rdfs:seeAlso ?treeMatch .
+    ?birthPlace sdo:name ?birthPlaceName .
+    ?deathPlace sdo:name ?deathPlaceName .
+    ?related_uri skos:prefLabel ?related_prefLabel .
+}
+WHERE {
+    {
+        # QLever’s text index covers every literal of the knowledge graph. ql:contains-entity binds
+        # the matched literal itself; joining it to sdo:name makes only a hit on a name count.
+        # A matched name contains every search word, so the shortest ones are the closest matches.
+        SELECT ?uri (MIN(STRLEN(STR(?matchedName))) AS ?matchedNameLength) WHERE {
+            ?text ql:contains-word ?query ;
+                ql:contains-entity ?matchedName .
+            ?hit sdo:name ?matchedName .
+            # A reconstruction is the person; an observation is one mention of that person in a
+            # source. A hit on the spelling in an observation finds the reconstruction derived from
+            # it. Only the Streekarchief Midden-Holland observations are in this graph; the Open
+            # Archieven ones the reconstructions also derive from are not.
+            {
+                ?hit a picom:PersonReconstruction .
+                BIND(?hit AS ?uri)
+            }
+            UNION
+            {
+                ?hit a picom:PersonObservation .
+                ?uri prov:wasDerivedFrom ?hit ;
+                    a picom:PersonReconstruction .
+            }
+        }
+        GROUP BY ?uri
+        ORDER BY ?matchedNameLength ?uri
+        #LIMIT#
+    }
+
+    # One UNION branch per multi-valued property, and not an OPTIONAL group: see “One UNION branch
+    # per multi-valued property” in the Network of Terms catalog README. A reconstruction always has
+    # exactly one sdo:name, so the first branch matches every result. It also holds the dates and
+    # places, which a reconstruction has at most one of each.
+    {
+        {
+            ?uri sdo:name ?prefLabel .
+            # Dates are xsd:date or xsd:gYear: plain ISO 8601 at the source’s precision.
+            OPTIONAL { ?uri sdo:birthDate ?birthDate }
+            OPTIONAL { ?uri sdo:deathDate ?deathDate }
+            # Places are GemeenteGeschiedenis IRIs named in this graph; the Network of Terms returns
+            # them as entities with a URI and a name.
+            OPTIONAL { ?uri sdo:birthPlace ?birthPlace . ?birthPlace sdo:name ?birthPlaceName }
+            OPTIONAL { ?uri sdo:deathPlace ?deathPlace . ?deathPlace sdo:name ?deathPlaceName }
+        }
+        # The name parts are stated on a pnv:PersonName node. The family name is the surname with
+        # its prefix (“van der Berg”), both stated separately by the source.
+        UNION { ?uri pnv:hasName/pnv:givenName ?givenName }
+        UNION {
+            ?uri pnv:hasName ?name .
+            ?name pnv:baseSurname ?baseSurname .
+            OPTIONAL { ?name pnv:surnamePrefix ?surnamePrefix }
+            BIND(COALESCE(CONCAT(?surnamePrefix, " ", ?baseSurname), ?baseSurname) AS ?familyName)
+        }
+        UNION { ?uri sdo:hasOccupation ?occupation }
+        # Family members are reconstructions in the same graph. gtm:disputedParent is left out.
+        UNION {
+            ?uri sdo:spouse|sdo:parent|sdo:children ?related_uri .
+            ?related_uri sdo:name ?related_prefLabel .
+        }
+        # The observations the reconstruction was derived from; their URIs dereference.
+        UNION { ?uri prov:wasDerivedFrom ?observation }
+        # Spellings found in the sources: matched on, never shown.
+        UNION { ?uri prov:wasDerivedFrom/sdo:name ?hiddenLabel }
+        # A Genealogie Online tree person the pipeline matched. It is a probabilistic signal, so
+        # it is a link, not an exact match.
+        UNION { ?uri gtm:treeMatch ?treeMatch }
+    }
+}

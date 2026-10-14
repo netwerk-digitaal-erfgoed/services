@@ -29,7 +29,7 @@
         ],
         "options": {
           "cwd": "{projectRoot}",
-          "command": "../../packages/network-of-persons-catalog/smoke-test.sh apps-network-of-persons-reconciliation /reconcile/https://data.niod.nl/WO2_personen"
+          "command": "../../packages/network-of-persons-catalog/smoke-test.sh apps-network-of-persons-reconciliation /reconcile/{dataset}"
         }
       }
     }

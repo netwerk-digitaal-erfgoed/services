@@ -15,6 +15,36 @@
         }
       ],
       "alternateName": "WO2Net"
+    },
+    {
+      "@id": "https://www.openarchieven.nl/",
+      "@type": "Organization",
+      "name": [
+        {
+          "@language": "en",
+          "@value": "Open Archives"
+        },
+        {
+          "@language": "nl",
+          "@value": "Open Archieven"
+        }
+      ],
+      "alternateName": "Open Archieven"
+    },
+    {
+      "@id": "https://www.goudatijdmachine.nl",
+      "@type": "Organization",
+      "name": [
+        {
+          "@language": "en",
+          "@value": "Gouda Time Machine"
+        },
+        {
+          "@language": "nl",
+          "@value": "Gouda Tijdmachine"
+        }
+      ],
+      "alternateName": "GTM"
     }
   ]
 }
