@@ -19,15 +19,16 @@ updates:
   - package-ecosystem: 'npm'
     directory: '/'
     # Check daily, but hold most updates for a cooldown so they don’t churn.
-    # @lde/* is excluded from the cooldown, so our own LDE packages land within a
-    # day of release while third-party packages wait out the delay (exclude always
-    # wins over the cooldown).
+    # @lde/* and @netwerk-digitaal-erfgoed/* are excluded from the cooldown, so our
+    # own packages land within a day of release while third-party packages wait out
+    # the delay (exclude always wins over the cooldown).
     schedule:
       interval: 'daily'
     cooldown:
       default-days: 7
       exclude:
         - '@lde/*'
+        - '@netwerk-digitaal-erfgoed/*'
     ignore:
       # Nx decides which versions of these it supports: nx migrate bumps them on
       # the Nx pull request.
