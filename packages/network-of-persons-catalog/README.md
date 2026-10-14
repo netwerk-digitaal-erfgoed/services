@@ -35,16 +35,17 @@ catalog/
 
 The Network of Persons has no code of its own. The Network of Terms publishes
 its GraphQL API and its reconciliation service as Docker images, and both read
-their catalogue from `/app/catalog`. Each of our two apps is a Dockerfile that
-replaces that directory:
+their catalogue from the directory in `CATALOG_PATH`. Each of our two apps is a
+Dockerfile that copies our catalogue in and points `CATALOG_PATH` at it:
 
 ```dockerfile
 FROM ghcr.io/netwerk-digitaal-erfgoed/network-of-terms-graphql:<tag>
-USER root
-RUN rm -rf /app/catalog
-COPY . /app/catalog
-USER node
+COPY . /catalog
+ENV CATALOG_PATH=/catalog
 ```
+
+If `CATALOG_PATH` names a directory that doesn’t exist or holds no datasets, the
+server stops at startup with an error.
 
 See [`apps/network-of-persons-graphql`](../../apps/network-of-persons-graphql)
 and [`apps/network-of-persons-reconciliation`](../../apps/network-of-persons-reconciliation).
@@ -82,7 +83,7 @@ You can run the Network of Terms over your own datasets the same way.
 
    ```sh
    docker run --rm -p 3123:3123 \
-     -v "$PWD/catalog:/app/catalog:ro" \
+     -v "$PWD/catalog:/catalog:ro" -e CATALOG_PATH=/catalog \
      ghcr.io/netwerk-digitaal-erfgoed/network-of-terms-graphql
    ```
 

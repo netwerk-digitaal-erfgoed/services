@@ -1,9 +1,7 @@
-FROM ghcr.io/netwerk-digitaal-erfgoed/network-of-terms-reconciliation:20261001120546-da0f375
+FROM ghcr.io/netwerk-digitaal-erfgoed/network-of-terms-reconciliation:20261014113300-abe9b67
 LABEL org.opencontainers.image.source="https://github.com/netwerk-digitaal-erfgoed/services"
 
-# The Network of Terms image serves the catalogue in /app/catalog; replace it with ours.
+# Serve our catalogue instead of the Network of Terms one.
 # The build context is the catalogue directory of packages/network-of-persons-catalog.
-USER root
-RUN rm -rf /app/catalog
-COPY . /app/catalog
-USER node
+COPY . /catalog
+ENV CATALOG_PATH=/catalog
