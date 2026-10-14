@@ -19,7 +19,9 @@ CONSTRUCT {
         sdo:deathDate ?deathDate ;
         sdo:birthPlace ?birthPlace ;
         sdo:deathPlace ?deathPlace ;
+        sdo:gender ?gender ;
         sdo:hasOccupation ?occupation ;
+        ?relation ?related_uri ;
         skos:related ?related_uri ;
         rdfs:seeAlso ?observation ;
         rdfs:seeAlso ?treeMatch .
@@ -66,6 +68,7 @@ WHERE {
             # Dates are xsd:date or xsd:gYear: plain ISO 8601 at the source’s precision.
             OPTIONAL { ?uri sdo:birthDate ?birthDate }
             OPTIONAL { ?uri sdo:deathDate ?deathDate }
+            OPTIONAL { ?uri sdo:gender ?gender }
             # Places are GemeenteGeschiedenis IRIs named in this graph; the Network of Terms returns
             # them as entities with a URI and a name.
             OPTIONAL { ?uri sdo:birthPlace ?birthPlace . ?birthPlace sdo:name ?birthPlaceName }
@@ -81,9 +84,11 @@ WHERE {
             BIND(COALESCE(CONCAT(?surnamePrefix, " ", ?baseSurname), ?baseSurname) AS ?familyName)
         }
         UNION { ?uri sdo:hasOccupation ?occupation }
-        # Family members are reconstructions in the same graph. gtm:disputedParent is left out.
+        # Family members are reconstructions in the same graph. gtm:disputedParent is left out. Each
+        # is constructed under its own relation, and as skos:related too, which clients read today.
         UNION {
-            ?uri sdo:spouse|sdo:parent|sdo:children ?related_uri .
+            ?uri ?relation ?related_uri .
+            VALUES ?relation { sdo:spouse sdo:parent sdo:children }
             ?related_uri sdo:name ?related_prefLabel .
         }
         # The observations the reconstruction was derived from; their URIs dereference.

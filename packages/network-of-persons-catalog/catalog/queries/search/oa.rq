@@ -18,7 +18,9 @@ CONSTRUCT {
         sdo:deathDate ?deathDate ;
         sdo:birthPlace ?birthPlace ;
         sdo:deathPlace ?deathPlace ;
+        sdo:gender ?gender ;
         sdo:hasOccupation ?occupation ;
+        ?relation ?related_uri ;
         skos:related ?related_uri ;
         rdfs:seeAlso ?observation .
     ?related_uri skos:prefLabel ?related_prefLabel .
@@ -62,12 +64,15 @@ WHERE {
         # entities without a URI.
         UNION { ?uri sdo:birthPlace ?birthPlace }
         UNION { ?uri sdo:deathPlace ?deathPlace }
+        UNION { ?uri sdo:gender ?gender }
         UNION { ?uri sdo:hasOccupation ?occupation }
         UNION { ?uri sdo:description ?description }
         # Family members are reconstructions in the same dataset. A relative gets the same single
-        # preferred label it gets as a result, so a relative that is also a result has one.
+        # preferred label it gets as a result, so a relative that is also a result has one. Each is
+        # constructed under its own relation, and as skos:related too, which clients read today.
         UNION {
-            ?uri sdo:spouse|sdo:parent|sdo:children|sdo:sibling ?related_uri .
+            ?uri ?relation ?related_uri .
+            VALUES ?relation { sdo:spouse sdo:parent sdo:children sdo:sibling }
             {
                 SELECT ?related_uri (MIN(?related_name) AS ?related_prefLabel) WHERE {
                     ?related_uri a picom:PersonReconstruction ;

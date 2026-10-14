@@ -31,6 +31,36 @@ catalog/
         └── wo2personen.rq
 ```
 
+## Gender
+
+All three datasets state `schema:gender` as Schema.org’s `Male` or `Female`
+IRI, and nothing else. Counted on 2026-10-14 over every subject, observations
+included:
+
+| Dataset           | Namespace             | Male    | Female  |
+| ----------------- | --------------------- | ------- | ------- |
+| WO2-personen      | `http://schema.org/`  | 1149700 | 386270  |
+| Open Archieven    | `https://schema.org/` | 1621688 | 1632832 |
+| Gouda Tijdmachine | `https://schema.org/` | 310252  | 329766  |
+
+The queries construct the value as the source states it. The Network of Terms
+returns both namespaces as `https://schema.org/Male` and
+`https://schema.org/Female`. WO2-personen and Gouda Tijdmachine state at most
+one gender per reconstruction; 3110 current Open Archieven reconstructions
+state both, and come out with both.
+
+Person sources in the Network of Terms catalogue state gender as literals,
+which matters if one of them moves here:
+
+- House of Legacies: “Man”, “Vrouw”, “Non-binair” and “Overig”, tagged `nl`.
+- The Frisian thesaurus: “mannelijk”, “vrouwelijk” and “intersekse vrouw”, in
+  varying case.
+- The WO2-biografieën: Dutch and English mixed, in varying case and with stray
+  spaces and newlines – “Man”, “male”, “Male\n”, “Female”.
+
+The Network of Terms passes a literal through as stated, so these are not
+normalised to the Schema.org IRIs.
+
 ## How the catalogue is deployed
 
 The Network of Persons has no code of its own. The Network of Terms publishes
