@@ -24,7 +24,7 @@ CONSTRUCT {
     ?deathPlace sdo:name ?deathPlaceName .
     ?related_uri skos:prefLabel ?related_prefLabel .
 }
-# See the search query, queries/search/gtm-pico.rq, for how the properties are read.
+# See the search query, queries/search/gtm.rq, for how the properties are read.
 WHERE {
     VALUES ?uri { ?uris }
     ?uri a picom:PersonReconstruction .

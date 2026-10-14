@@ -17,17 +17,17 @@ for the dataset descriptions and the query conventions.
 catalog/
 ├── publishers.jsonld
 ├── datasets/
-│   ├── gtm-pico.jsonld
-│   ├── oa-pico.jsonld
+│   ├── gtm.jsonld
+│   ├── oa.jsonld
 │   └── wo2personen.jsonld
 └── queries/
     ├── search/
-    │   ├── gtm-pico.rq
-    │   ├── oa-pico.rq
+    │   ├── gtm.rq
+    │   ├── oa.rq
     │   └── wo2personen.rq
     └── lookup/
-        ├── gtm-pico.rq
-        ├── oa-pico.rq
+        ├── gtm.rq
+        ├── oa.rq
         └── wo2personen.rq
 ```
 
