@@ -58,9 +58,19 @@ WHERE {
 
     # One UNION branch per multi-valued property, and not an OPTIONAL group: see “One UNION branch
     # per multi-valued property” in the Network of Terms catalog README. A reconstruction always has
-    # exactly one sdo:name, so the first branch matches every result.
+    # exactly one sdo:name, so the first branch matches every result. It also holds the dates and
+    # places, which a reconstruction has at most one of each.
     {
-        { ?uri sdo:name ?prefLabel }
+        {
+            ?uri sdo:name ?prefLabel .
+            # Dates are xsd:date or xsd:gYear: plain ISO 8601 at the source’s precision.
+            OPTIONAL { ?uri sdo:birthDate ?birthDate }
+            OPTIONAL { ?uri sdo:deathDate ?deathDate }
+            # Places are GemeenteGeschiedenis IRIs named in this graph; the Network of Terms returns
+            # them as entities with a URI and a name.
+            OPTIONAL { ?uri sdo:birthPlace ?birthPlace . ?birthPlace sdo:name ?birthPlaceName }
+            OPTIONAL { ?uri sdo:deathPlace ?deathPlace . ?deathPlace sdo:name ?deathPlaceName }
+        }
         # The name parts are stated on a pnv:PersonName node. The family name is the surname with
         # its prefix (“van der Berg”), both stated separately by the source.
         UNION { ?uri pnv:hasName/pnv:givenName ?givenName }
@@ -70,13 +80,6 @@ WHERE {
             OPTIONAL { ?name pnv:surnamePrefix ?surnamePrefix }
             BIND(COALESCE(CONCAT(?surnamePrefix, " ", ?baseSurname), ?baseSurname) AS ?familyName)
         }
-        # Dates are xsd:date or xsd:gYear: plain ISO 8601 at the source’s precision.
-        UNION { ?uri sdo:birthDate ?birthDate }
-        UNION { ?uri sdo:deathDate ?deathDate }
-        # Places are GemeenteGeschiedenis IRIs named in this graph; the Network of Terms returns them
-        # as entities with a URI and a name.
-        UNION { ?uri sdo:birthPlace ?birthPlace . ?birthPlace sdo:name ?birthPlaceName }
-        UNION { ?uri sdo:deathPlace ?deathPlace . ?deathPlace sdo:name ?deathPlaceName }
         UNION { ?uri sdo:hasOccupation ?occupation }
         # Family members are reconstructions in the same graph. gtm:disputedParent is left out.
         UNION {

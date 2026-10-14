@@ -30,7 +30,13 @@ WHERE {
     ?uri a picom:PersonReconstruction .
 
     {
-        { ?uri sdo:name ?prefLabel }
+        {
+            ?uri sdo:name ?prefLabel .
+            OPTIONAL { ?uri sdo:birthDate ?birthDate }
+            OPTIONAL { ?uri sdo:deathDate ?deathDate }
+            OPTIONAL { ?uri sdo:birthPlace ?birthPlace . ?birthPlace sdo:name ?birthPlaceName }
+            OPTIONAL { ?uri sdo:deathPlace ?deathPlace . ?deathPlace sdo:name ?deathPlaceName }
+        }
         UNION { ?uri pnv:hasName/pnv:givenName ?givenName }
         UNION {
             ?uri pnv:hasName ?name .
@@ -38,10 +44,6 @@ WHERE {
             OPTIONAL { ?name pnv:surnamePrefix ?surnamePrefix }
             BIND(COALESCE(CONCAT(?surnamePrefix, " ", ?baseSurname), ?baseSurname) AS ?familyName)
         }
-        UNION { ?uri sdo:birthDate ?birthDate }
-        UNION { ?uri sdo:deathDate ?deathDate }
-        UNION { ?uri sdo:birthPlace ?birthPlace . ?birthPlace sdo:name ?birthPlaceName }
-        UNION { ?uri sdo:deathPlace ?deathPlace . ?deathPlace sdo:name ?deathPlaceName }
         UNION { ?uri sdo:hasOccupation ?occupation }
         UNION {
             ?uri sdo:spouse|sdo:parent|sdo:children ?related_uri .
