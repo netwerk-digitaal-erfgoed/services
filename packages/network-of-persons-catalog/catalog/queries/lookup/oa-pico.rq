@@ -20,7 +20,7 @@ CONSTRUCT {
         rdfs:seeAlso ?observation .
     ?related_uri skos:prefLabel ?related_prefLabel .
 }
-# See the search query, queries/search/oa-pico-recon.rq, for how the properties are read.
+# See the search query, queries/search/oa-pico.rq, for how the properties are read.
 WHERE {
     # At the top level, so the UNION branches below are bound to the requested URIs too and are not
     # evaluated over every reconstruction.

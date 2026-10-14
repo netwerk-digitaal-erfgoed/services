@@ -47,11 +47,11 @@
       "potentialAction": [
         {
           "@type": "SearchAction",
-          "query": "file://../queries/search/gtm-pico-recon.rq"
+          "query": "file://../queries/search/gtm-pico.rq"
         },
         {
           "@type": "FindAction",
-          "query": "file://../queries/lookup/gtm-pico-recon.rq"
+          "query": "file://../queries/lookup/gtm-pico.rq"
         },
         {
           "@type": "Action",

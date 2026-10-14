@@ -47,11 +47,11 @@
       "potentialAction": [
         {
           "@type": "SearchAction",
-          "query": "file://../queries/search/oa-pico-recon.rq"
+          "query": "file://../queries/search/oa-pico.rq"
         },
         {
           "@type": "FindAction",
-          "query": "file://../queries/lookup/oa-pico-recon.rq"
+          "query": "file://../queries/lookup/oa-pico.rq"
         },
         {
           "@type": "Action",
