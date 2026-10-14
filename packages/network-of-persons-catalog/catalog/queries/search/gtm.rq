@@ -19,6 +19,7 @@ CONSTRUCT {
         sdo:deathDate ?deathDate ;
         sdo:birthPlace ?birthPlace ;
         sdo:deathPlace ?deathPlace ;
+        sdo:gender ?gender ;
         sdo:hasOccupation ?occupation ;
         skos:related ?related_uri ;
         rdfs:seeAlso ?observation ;
@@ -66,6 +67,7 @@ WHERE {
             # Dates are xsd:date or xsd:gYear: plain ISO 8601 at the source’s precision.
             OPTIONAL { ?uri sdo:birthDate ?birthDate }
             OPTIONAL { ?uri sdo:deathDate ?deathDate }
+            OPTIONAL { ?uri sdo:gender ?gender }
             # Places are GemeenteGeschiedenis IRIs named in this graph; the Network of Terms returns
             # them as entities with a URI and a name.
             OPTIONAL { ?uri sdo:birthPlace ?birthPlace . ?birthPlace sdo:name ?birthPlaceName }

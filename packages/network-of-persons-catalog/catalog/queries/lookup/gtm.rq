@@ -16,6 +16,7 @@ CONSTRUCT {
         sdo:deathDate ?deathDate ;
         sdo:birthPlace ?birthPlace ;
         sdo:deathPlace ?deathPlace ;
+        sdo:gender ?gender ;
         sdo:hasOccupation ?occupation ;
         skos:related ?related_uri ;
         rdfs:seeAlso ?observation ;
@@ -34,6 +35,7 @@ WHERE {
             ?uri sdo:name ?prefLabel .
             OPTIONAL { ?uri sdo:birthDate ?birthDate }
             OPTIONAL { ?uri sdo:deathDate ?deathDate }
+            OPTIONAL { ?uri sdo:gender ?gender }
             OPTIONAL { ?uri sdo:birthPlace ?birthPlace . ?birthPlace sdo:name ?birthPlaceName }
             OPTIONAL { ?uri sdo:deathPlace ?deathPlace . ?deathPlace sdo:name ?deathPlaceName }
         }

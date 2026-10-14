@@ -52,6 +52,7 @@ WHERE {
         (schema:deathDate schema:deathDate)
         (schema:birthPlace schema:birthPlace)
         (schema:deathPlace schema:deathPlace)
+        (schema:gender schema:gender)
     }
 
     # Spellings found in the sources: matched on, never shown.

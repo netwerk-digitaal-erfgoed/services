@@ -15,6 +15,7 @@ CONSTRUCT {
         sdo:deathDate ?deathDate ;
         sdo:birthPlace ?birthPlace ;
         sdo:deathPlace ?deathPlace ;
+        sdo:gender ?gender ;
         sdo:hasOccupation ?occupation ;
         skos:related ?related_uri ;
         rdfs:seeAlso ?observation .
@@ -45,6 +46,7 @@ WHERE {
         UNION { ?uri sdo:deathDate ?deathDate }
         UNION { ?uri sdo:birthPlace ?birthPlace }
         UNION { ?uri sdo:deathPlace ?deathPlace }
+        UNION { ?uri sdo:gender ?gender }
         UNION { ?uri sdo:hasOccupation ?occupation }
         UNION { ?uri sdo:description ?description }
         UNION {

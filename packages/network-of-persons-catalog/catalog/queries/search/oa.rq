@@ -18,6 +18,7 @@ CONSTRUCT {
         sdo:deathDate ?deathDate ;
         sdo:birthPlace ?birthPlace ;
         sdo:deathPlace ?deathPlace ;
+        sdo:gender ?gender ;
         sdo:hasOccupation ?occupation ;
         skos:related ?related_uri ;
         rdfs:seeAlso ?observation .
@@ -62,6 +63,7 @@ WHERE {
         # entities without a URI.
         UNION { ?uri sdo:birthPlace ?birthPlace }
         UNION { ?uri sdo:deathPlace ?deathPlace }
+        UNION { ?uri sdo:gender ?gender }
         UNION { ?uri sdo:hasOccupation ?occupation }
         UNION { ?uri sdo:description ?description }
         # Family members are reconstructions in the same dataset. A relative gets the same single

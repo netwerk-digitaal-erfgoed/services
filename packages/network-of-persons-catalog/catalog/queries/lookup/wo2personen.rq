@@ -21,6 +21,7 @@ WHERE {
         (schema:deathDate schema:deathDate)
         (schema:birthPlace schema:birthPlace)
         (schema:deathPlace schema:deathPlace)
+        (schema:gender schema:gender)
     }
 
     OPTIONAL {
