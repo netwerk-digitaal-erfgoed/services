@@ -17,8 +17,8 @@ This is an [Nx](https://nx.dev) monorepo using pnpm workspaces:
   images with its own catalogue,
   [`packages/network-of-persons-catalog`](packages/network-of-persons-catalog/catalog),
   so it has no code of its own: `apps/network-of-persons-graphql` and
-  `apps/network-of-persons-reconciliation` are each a Dockerfile that replaces
-  the catalogue in the upstream image.
+  `apps/network-of-persons-reconciliation` are each a Dockerfile that points
+  the upstream image at that catalogue.
 
 ## Develop
 
