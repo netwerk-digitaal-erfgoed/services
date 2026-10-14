@@ -17,6 +17,7 @@ CONSTRUCT {
         sdo:deathPlace ?deathPlace ;
         sdo:gender ?gender ;
         sdo:hasOccupation ?occupation ;
+        ?relation ?related_uri ;
         skos:related ?related_uri ;
         rdfs:seeAlso ?observation .
     ?related_uri skos:prefLabel ?related_prefLabel .
@@ -50,7 +51,8 @@ WHERE {
         UNION { ?uri sdo:hasOccupation ?occupation }
         UNION { ?uri sdo:description ?description }
         UNION {
-            ?uri sdo:spouse|sdo:parent|sdo:children|sdo:sibling ?related_uri .
+            ?uri ?relation ?related_uri .
+            VALUES ?relation { sdo:spouse sdo:parent sdo:children sdo:sibling }
             {
                 SELECT ?related_uri (MIN(?related_name) AS ?related_prefLabel) WHERE {
                     ?related_uri a picom:PersonReconstruction ;

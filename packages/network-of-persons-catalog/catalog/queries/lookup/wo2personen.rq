@@ -7,6 +7,7 @@ CONSTRUCT {
     ?uri a skos:Concept, schema:Person ;
         ?constructedProperty ?value ;
         skos:hiddenLabel ?hiddenLabel .
+    ?value schema:name ?relativeName .
 }
 # See the search query, queries/search/wo2personen.rq, for how the properties are read.
 WHERE {
@@ -22,6 +23,18 @@ WHERE {
         (schema:birthPlace schema:birthPlace)
         (schema:deathPlace schema:deathPlace)
         (schema:gender schema:gender)
+        (schema:parent schema:parent)
+        (schema:children schema:children)
+        (schema:spouse schema:spouse)
+        (schema:sibling schema:sibling)
+    }
+
+    # A relative is a reconstruction too, named on the row that states the relation, so its names do
+    # not multiply against the person’s other properties. Of the values above, only a relative is a
+    # reconstruction.
+    OPTIONAL {
+        ?value a picom:PersonReconstruction ;
+            schema:name ?relativeName .
     }
 
     OPTIONAL {
