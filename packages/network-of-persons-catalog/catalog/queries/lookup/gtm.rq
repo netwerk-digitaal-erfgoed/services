@@ -18,6 +18,7 @@ CONSTRUCT {
         sdo:deathPlace ?deathPlace ;
         sdo:gender ?gender ;
         sdo:hasOccupation ?occupation ;
+        ?relation ?related_uri ;
         skos:related ?related_uri ;
         rdfs:seeAlso ?observation ;
         rdfs:seeAlso ?treeMatch .
@@ -48,7 +49,8 @@ WHERE {
         }
         UNION { ?uri sdo:hasOccupation ?occupation }
         UNION {
-            ?uri sdo:spouse|sdo:parent|sdo:children ?related_uri .
+            ?uri ?relation ?related_uri .
+            VALUES ?relation { sdo:spouse sdo:parent sdo:children }
             ?related_uri sdo:name ?related_prefLabel .
         }
         UNION { ?uri prov:wasDerivedFrom ?observation }
