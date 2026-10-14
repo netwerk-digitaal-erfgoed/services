@@ -22,6 +22,10 @@ CONSTRUCT {
 }
 # See the search query, queries/search/oa-pico-recon.rq, for how the properties are read.
 WHERE {
+    # At the top level, so the UNION branches below are bound to the requested URIs too and are not
+    # evaluated over every reconstruction.
+    VALUES ?uri { ?uris }
+
     {
         # The alphabetically first name spelling is the preferred label, the others are altLabels.
         SELECT ?uri (MIN(?name) AS ?prefLabel) WHERE {
@@ -45,10 +49,16 @@ WHERE {
         UNION { ?uri sdo:description ?description }
         UNION {
             ?uri sdo:spouse|sdo:parent|sdo:children|sdo:sibling ?related_uri .
-            ?related_uri sdo:name ?related_prefLabel .
+            {
+                SELECT ?related_uri (MIN(?related_name) AS ?related_prefLabel) WHERE {
+                    ?related_uri a picom:PersonReconstruction ;
+                        sdo:name ?related_name .
+                }
+                GROUP BY ?related_uri
+            }
         }
         UNION { ?uri prov:wasDerivedFrom ?observation }
     }
 
-    FILTER(!BOUND(?altLabel) || ?altLabel != ?prefLabel)
+    FILTER(!BOUND(?altLabel) || STR(?altLabel) != STR(?prefLabel))
 }
