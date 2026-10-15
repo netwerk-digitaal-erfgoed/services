@@ -44,3 +44,4 @@ CLAUDE.md
 .nx/self-healing
 vitest.config.*.timestamp*
 .nx/migrate-runs
+.vitest
