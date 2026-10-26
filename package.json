@@ -16,8 +16,8 @@
     "*.{ts,json,md}": "prettier --write"
   },
   "devDependencies": {
-    "@commitlint/cli": "^21.2.3",
-    "@commitlint/config-conventional": "^21.2.3",
+    "@commitlint/cli": "^21.2.4",
+    "@commitlint/config-conventional": "^21.2.4",
     "@eslint/js": "^10.0.1",
     "@nx/docker": "23.3.0",
     "@nx/esbuild": "23.3.0",
