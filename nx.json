@@ -123,5 +123,8 @@
       "e2eTestRunner": "none"
     }
   },
-  "analytics": false
+  "analytics": false,
+  "affected": {
+    "legacy": true
+  }
 }
