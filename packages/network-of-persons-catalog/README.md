@@ -1,16 +1,16 @@
-# Network of Persons catalogue
+# Network of Persons catalog
 
-The catalogue of the Network of Persons, a proof of concept that runs the
+The catalog of the Network of Persons, a proof of concept that runs the
 [Network of Terms](https://github.com/netwerk-digitaal-erfgoed/network-of-terms)
 software over person datasets instead of terminology sources. It holds three
-datasets, all in the Persons in Context (PiCo) model: the WO2-personen of
-WO2Net, the person reconstructions of
-[Open Archieven](https://www.openarchieven.nl/) and the person reconstructions
-in the knowledge graph of the
-[Gouda Tijdmachine](https://www.goudatijdmachine.nl/).
+datasets, all in the Persons in Context (PiCo) model:
+
+- WO2-personen of WO2Net
+- person reconstructions of [Open Archieven](https://www.openarchieven.nl/)
+- person reconstructions in the knowledge graph of the [Gouda Tijdmachine](https://www.goudatijdmachine.nl/).
 
 The format is the Network of Terms’: see its
-[catalogue documentation](https://github.com/netwerk-digitaal-erfgoed/network-of-terms/tree/master/packages/catalog)
+[catalog documentation](https://github.com/netwerk-digitaal-erfgoed/network-of-terms/tree/master/packages/catalog)
 for the dataset descriptions and the query conventions.
 
 ```
@@ -49,7 +49,7 @@ returns both namespaces as `https://schema.org/Male` and
 one gender per reconstruction; 3110 current Open Archieven reconstructions
 state both, and come out with both.
 
-Person sources in the Network of Terms catalogue state gender as literals,
+Person sources in the Network of Terms catalog state gender as literals,
 which matters if one of them moves here:
 
 - House of Legacies: “Man”, “Vrouw”, “Non-binair” and “Overig”, tagged `nl`.
@@ -61,12 +61,12 @@ which matters if one of them moves here:
 The Network of Terms passes a literal through as stated, so these are not
 normalised to the Schema.org IRIs.
 
-## How the catalogue is deployed
+## How the catalog is deployed
 
 The Network of Persons has no code of its own. The Network of Terms publishes
 its GraphQL API and its reconciliation service as Docker images, and both read
-their catalogue from the directory in `CATALOG_PATH`. Each of our two apps is a
-Dockerfile that copies our catalogue in and points `CATALOG_PATH` at it:
+their catalog from the directory in `CATALOG_PATH`. Each of our two apps is a
+Dockerfile that copies our catalog in and points `CATALOG_PATH` at it:
 
 ```dockerfile
 FROM ghcr.io/netwerk-digitaal-erfgoed/network-of-terms-graphql:<tag>
@@ -85,30 +85,30 @@ Docker build context.
 ## Why derived images
 
 We considered three other ways to run the Network of Terms with a different
-catalogue.
+catalog.
 
 - **Fork the Network of Terms.** A fork has to be kept in step with upstream by
   hand, for a change that touches no code.
 - **Write our own server on the Network of Terms npm packages.** Only the
-  catalogue and query packages are published, so we would have to rebuild the
+  catalog and query packages are published, so we would have to rebuild the
   GraphQL schema, the resolvers and the reconciliation service.
-- **Mount the catalogue as a volume on the upstream image.** This works and
+- **Mount the catalog as a volume on the upstream image.** This works and
   needs no build. We chose against it for deployment: the upstream version
-  would then be set in the cluster configuration, and a catalogue change would
+  would then be set in the cluster configuration, and a catalog change would
   reach production without having run against the image it is served by.
 
 With a derived image, the `FROM` line pins the upstream version in this
 repository. Dependabot proposes each new upstream image as a pull request, CI
-builds the image with our catalogue, and a developer can run the result locally
+builds the image with our catalog, and a developer can run the result locally
 before it is deployed.
 
 ## Run your own Network of Terms
 
 You can run the Network of Terms over your own datasets the same way.
 
-1. Write a catalogue in the layout above. Start by copying this directory or a
+1. Write a catalog in the layout above. Start by copying this directory or a
    few datasets from the
-   [Network of Terms catalogue](https://github.com/netwerk-digitaal-erfgoed/network-of-terms/tree/master/packages/catalog/catalog).
+   [Network of Terms catalog](https://github.com/netwerk-digitaal-erfgoed/network-of-terms/tree/master/packages/catalog/catalog).
 2. To try it, mount it on the upstream image:
 
    ```sh
