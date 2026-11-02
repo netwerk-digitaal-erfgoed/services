@@ -9,7 +9,7 @@ PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 # The source uses the https://schema.org/ namespace; the Network of Terms reads both, so it is kept.
 CONSTRUCT {
     ?uri a ?conceptClass, ?personClass ;
-        skos:prefLabel ?ownPrefLabel ;
+        skos:prefLabel ?prefLabel ;
         skos:altLabel ?altLabel ;
         skos:scopeNote ?description ;
         sdo:givenName ?givenName ;
@@ -33,7 +33,7 @@ WHERE {
         # A matched name contains every search word, so the shortest ones are the closest matches.
         # A reconstruction has several name spellings and no canonical one; the same grouping
         # picks the alphabetically first as the preferred label, the others become altLabels.
-        SELECT ?uri (MIN(STRLEN(STR(?matchedName))) AS ?matchedNameLength) (MIN(?name) AS ?prefLabel)
+        SELECT ?uri (MIN(STRLEN(STR(?matchedName))) AS ?matchedNameLength) (MIN(?name) AS ?firstName)
         WHERE {
             ?text ql:contains-word ?query ;
                 ql:contains-entity ?matchedName .
@@ -52,17 +52,16 @@ WHERE {
 
     # One UNION branch per multi-valued property, and not an OPTIONAL group: see “One UNION branch
     # per multi-valued property” in the Network of Terms catalog README. The first branch repeats a
-    # pattern every result matches, so a person without any property still comes through.
-    #
-    # QLever constructs the template once per row and does not drop the duplicate triples, so a
-    # triple whose variables every row binds comes back once per value of every property. The
-    # classes are therefore bound in the first branch only, which yields one row per person.
+    # pattern every result matches, so a person without any property still comes through, and is
+    # the one row per person the classes come from: see “Triples a person has once come from one
+    # row” in the catalog README.
     {
         {
             ?uri a picom:PersonReconstruction .
             BIND(skos:Concept AS ?conceptClass)
             BIND(sdo:Person AS ?personClass)
         }
+        UNION { ?uri sdo:name ?prefLabel }
         UNION { ?uri sdo:name ?altLabel }
         UNION { ?uri sdo:givenName ?givenName }
         UNION { ?uri sdo:familyName ?familyName }
@@ -94,13 +93,10 @@ WHERE {
         UNION { ?uri prov:wasDerivedFrom ?observation }
     }
 
-    # The preferred name is not also an alternative one. This is a top-level filter because a
-    # filter inside the UNION branch would not see ?prefLabel, which the subquery binds. Comparing
-    # the strings keeps a spelling whose language tag or datatype differs from being dropped by a
-    # type error.
-    FILTER(!BOUND(?altLabel) || STR(?altLabel) != STR(?prefLabel))
-
-    # The subquery binds the preferred label on every row, so it is constructed from the first
-    # branch’s row only, as the classes are. An unbound variable in the IF leaves it unbound.
-    BIND(IF(BOUND(?conceptClass), ?prefLabel, ?noValue) AS ?ownPrefLabel)
+    # The first name is the preferred label, and the other names are alternative ones. These are
+    # top-level filters because a filter inside a UNION branch would not see ?firstName, which the
+    # subquery binds. An alternative label is compared as a string, so the first name with another
+    # language tag or datatype is not repeated as one.
+    FILTER(!BOUND(?prefLabel) || ?prefLabel = ?firstName)
+    FILTER(!BOUND(?altLabel) || STR(?altLabel) != STR(?firstName))
 }

@@ -1,10 +1,11 @@
 PREFIX picom: <https://personsincontext.org/model#>
 PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX schema: <http://schema.org/>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 
 CONSTRUCT {
-    ?uri a skos:Concept, schema:Person ;
+    ?uri a ?conceptClass, ?personClass ;
         ?constructedProperty ?value ;
         skos:hiddenLabel ?hiddenLabel .
     ?value schema:name ?relativeName .
@@ -14,19 +15,20 @@ WHERE {
     VALUES ?uri { ?uris }
     ?uri a picom:PersonReconstruction ;
         ?property ?value .
-    VALUES (?property ?constructedProperty) {
-        (schema:name skos:prefLabel)
-        (schema:alternateName skos:altLabel)
-        (schema:sameAs skos:exactMatch)
-        (schema:birthDate schema:birthDate)
-        (schema:deathDate schema:deathDate)
-        (schema:birthPlace schema:birthPlace)
-        (schema:deathPlace schema:deathPlace)
-        (schema:gender schema:gender)
-        (schema:parent schema:parent)
-        (schema:children schema:children)
-        (schema:spouse schema:spouse)
-        (schema:sibling schema:sibling)
+    VALUES (?property ?constructedProperty ?conceptClass ?personClass) {
+        (schema:name skos:prefLabel skos:Concept schema:Person)
+        (rdf:type UNDEF UNDEF UNDEF)
+        (schema:alternateName skos:altLabel UNDEF UNDEF)
+        (schema:sameAs skos:exactMatch UNDEF UNDEF)
+        (schema:birthDate schema:birthDate UNDEF UNDEF)
+        (schema:deathDate schema:deathDate UNDEF UNDEF)
+        (schema:birthPlace schema:birthPlace UNDEF UNDEF)
+        (schema:deathPlace schema:deathPlace UNDEF UNDEF)
+        (schema:gender schema:gender UNDEF UNDEF)
+        (schema:parent schema:parent UNDEF UNDEF)
+        (schema:children schema:children UNDEF UNDEF)
+        (schema:spouse schema:spouse UNDEF UNDEF)
+        (schema:sibling schema:sibling UNDEF UNDEF)
     }
 
     # A relative is a reconstruction too, named on the row that states the relation, so its names do
@@ -40,5 +42,6 @@ WHERE {
     OPTIONAL {
         ?uri prov:wasDerivedFrom ?observation .
         ?observation schema:name|schema:alternateName ?hiddenLabel .
+        VALUES ?property { rdf:type }
     }
 }

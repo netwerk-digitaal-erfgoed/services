@@ -1,6 +1,7 @@
 PREFIX picom: <https://personsincontext.org/model#>
 PREFIX prov: <http://www.w3.org/ns/prov#>
 PREFIX ql: <http://qlever.cs.uni-freiburg.de/builtin-functions/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX schema: <http://schema.org/>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 
@@ -44,20 +45,25 @@ WHERE {
     # to the results, which took a search from 1 to 19 seconds. A place is stated as a name and,
     # for some persons, as a WO2 Thesaurus location beside it, with nothing pairing the two; both
     # are constructed as the source states them.
+    #
+    # Every reconstruction has exactly one name and one type, so each is one row per person: the
+    # name row constructs the classes, and the type row, which constructs nothing itself, carries
+    # the spellings. See “Triples a person has once come from one row” in the catalog README.
     ?uri ?property ?value .
-    VALUES (?property ?constructedProperty) {
-        (schema:name skos:prefLabel)
-        (schema:alternateName skos:altLabel)
-        (schema:sameAs skos:exactMatch)
-        (schema:birthDate schema:birthDate)
-        (schema:deathDate schema:deathDate)
-        (schema:birthPlace schema:birthPlace)
-        (schema:deathPlace schema:deathPlace)
-        (schema:gender schema:gender)
-        (schema:parent schema:parent)
-        (schema:children schema:children)
-        (schema:spouse schema:spouse)
-        (schema:sibling schema:sibling)
+    VALUES (?property ?constructedProperty ?conceptClass ?personClass) {
+        (schema:name skos:prefLabel skos:Concept schema:Person)
+        (rdf:type UNDEF UNDEF UNDEF)
+        (schema:alternateName skos:altLabel UNDEF UNDEF)
+        (schema:sameAs skos:exactMatch UNDEF UNDEF)
+        (schema:birthDate schema:birthDate UNDEF UNDEF)
+        (schema:deathDate schema:deathDate UNDEF UNDEF)
+        (schema:birthPlace schema:birthPlace UNDEF UNDEF)
+        (schema:deathPlace schema:deathPlace UNDEF UNDEF)
+        (schema:gender schema:gender UNDEF UNDEF)
+        (schema:parent schema:parent UNDEF UNDEF)
+        (schema:children schema:children UNDEF UNDEF)
+        (schema:spouse schema:spouse UNDEF UNDEF)
+        (schema:sibling schema:sibling UNDEF UNDEF)
     }
 
     # A relative is a reconstruction too, named on the row that states the relation, so its names do
@@ -68,19 +74,12 @@ WHERE {
             schema:name ?relativeName .
     }
 
-    # QLever constructs the template once per row and does not drop the duplicate triples, so a
-    # triple whose variables every row binds comes back once per property value. The classes and
-    # the spellings below are therefore joined to the name row only. An unbound variable in the IF
-    # leaves the class unbound.
-    BIND(IF(?property = schema:name, skos:Concept, ?noValue) AS ?conceptClass)
-    BIND(IF(?property = schema:name, schema:Person, ?noValue) AS ?personClass)
-
-    # Spellings found in the sources: matched on, never shown. The OPTIONAL binds ?property itself,
-    # so it joins the name row only: QLever evaluates a FILTER inside an OPTIONAL without the
-    # variables outside it, so a filter on ?property would drop every spelling.
+    # Spellings found in the sources: matched on, never shown. The OPTIONAL binds ?property to join
+    # the type row only: a UNION branch of their own runs QLever out of memory, as it evaluates the
+    # branch over the whole dataset before joining it to the results.
     OPTIONAL {
         ?uri prov:wasDerivedFrom ?observation .
         ?observation schema:name|schema:alternateName ?hiddenLabel .
-        VALUES ?property { schema:name }
+        VALUES ?property { rdf:type }
     }
 }

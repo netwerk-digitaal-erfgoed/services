@@ -31,6 +31,50 @@ catalog/
         └── wo2personen.rq
 ```
 
+## Triples a person has once come from one row
+
+All three datasets are served by QLever, which constructs the `CONSTRUCT`
+template once per result row and does not drop the duplicate triples. The
+queries return a row per value of each property – one `UNION` branch per
+multi-valued property, as the Network of Terms’ query conventions prescribe – so
+a template triple whose variables every row binds comes back once per row:
+`?uri a skos:Concept` for every name, observation and relative of the person.
+QLever can deduplicate (`--construct-deduplication`), but these endpoints are
+not ours to configure.
+
+So **bind what a person has once – the classes, and a preferred label a
+subquery picks – on one row per person only**, and leave it unbound on the
+others, where the template triple is then not constructed. Keep a value that
+can occur several times, such as a place’s names, out of that row, in a branch
+of its own:
+
+- Open Archieven: in a first `UNION` branch that every person matches. The
+  preferred label, which a subquery picks as the first name, gets a branch of
+  its own, filtered to that name, as the alternative labels are filtered to
+  the others.
+- Gouda Tijdmachine: in the branch with the name, which every reconstruction
+  has exactly one of.
+- WO2-personen: in extra columns of the `VALUES` table on the `schema:name`
+  row, `UNDEF` on the others. The spellings, which would multiply that row,
+  are joined to the `rdf:type` row instead, which constructs nothing itself, by
+  an `OPTIONAL` that binds `?property`. A `UNION` branch of their own runs
+  QLever out of memory, and QLever evaluates a `FILTER` inside an `OPTIONAL`
+  without the variables outside it, so filtering on `?property` there drops
+  every spelling.
+
+A person the bound row misses loses its classes, and the Network of Terms then
+leaves it out. Counted on 2026-11-02: every Gouda Tijdmachine and WO2-personen
+reconstruction has exactly one name, and every WO2-personen reconstruction
+exactly one type.
+
+Some duplicates remain, and are not worth a more complex query: a relative or
+place that several persons in a result share is described once for each of
+them, and a spelling found in several observations of a person comes back once
+for each.
+
+For ‘Jan Jansen’ at a limit of 1000, this made the search responses 53–79%
+smaller – Open Archieven from 11.6 to 4.4 MB – with the same distinct triples.
+
 ## Gender
 
 All three datasets state `schema:gender` as Schema.org’s `Male` or `Female`
