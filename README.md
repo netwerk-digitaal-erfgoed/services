@@ -11,14 +11,15 @@ This is an [Nx](https://nx.dev) monorepo using pnpm workspaces:
 
 ## Services
 
-- **Network of Persons** (proof of concept) – search and reconciliation over
+- **Network of Persons** (proof of concept): search and reconciliation over
   person datasets at <https://personennetwerk.netwerkdigitaalerfgoed.nl>. It
   runs the [Network of Terms](https://github.com/netwerk-digitaal-erfgoed/network-of-terms)
-  images with its own catalogue,
-  [`packages/network-of-persons-catalog`](packages/network-of-persons-catalog/catalog),
+  images with a custom catalog [`packages/network-of-persons-catalog`](packages/network-of-persons-catalog/catalog),
   so it has no code of its own: `apps/network-of-persons-graphql` and
   `apps/network-of-persons-reconciliation` are each a Dockerfile that points
-  the upstream image at that catalogue.
+  the upstream image at that catalogue. Their READMEs document the
+  [GraphQL API](apps/network-of-persons-graphql/README.md) and the
+  [reconciliation service](apps/network-of-persons-reconciliation/README.md) for users.
 
 ## Develop
 
