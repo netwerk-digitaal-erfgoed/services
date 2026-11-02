@@ -8,8 +8,8 @@ PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 
 # The source uses the https://schema.org/ namespace; the Network of Terms reads both, so it is kept.
 CONSTRUCT {
-    ?uri a skos:Concept, sdo:Person ;
-        skos:prefLabel ?prefLabel ;
+    ?uri a ?conceptClass, ?personClass ;
+        skos:prefLabel ?ownPrefLabel ;
         skos:altLabel ?altLabel ;
         skos:scopeNote ?description ;
         sdo:givenName ?givenName ;
@@ -53,8 +53,16 @@ WHERE {
     # One UNION branch per multi-valued property, and not an OPTIONAL group: see “One UNION branch
     # per multi-valued property” in the Network of Terms catalog README. The first branch repeats a
     # pattern every result matches, so a person without any property still comes through.
+    #
+    # QLever constructs the template once per row and does not drop the duplicate triples, so a
+    # triple whose variables every row binds comes back once per value of every property. The
+    # classes are therefore bound in the first branch only, which yields one row per person.
     {
-        { ?uri a picom:PersonReconstruction }
+        {
+            ?uri a picom:PersonReconstruction .
+            BIND(skos:Concept AS ?conceptClass)
+            BIND(sdo:Person AS ?personClass)
+        }
         UNION { ?uri sdo:name ?altLabel }
         UNION { ?uri sdo:givenName ?givenName }
         UNION { ?uri sdo:familyName ?familyName }
@@ -91,4 +99,8 @@ WHERE {
     # the strings keeps a spelling whose language tag or datatype differs from being dropped by a
     # type error.
     FILTER(!BOUND(?altLabel) || STR(?altLabel) != STR(?prefLabel))
+
+    # The subquery binds the preferred label on every row, so it is constructed from the first
+    # branch’s row only, as the classes are. An unbound variable in the IF leaves it unbound.
+    BIND(IF(BOUND(?conceptClass), ?prefLabel, ?noValue) AS ?ownPrefLabel)
 }

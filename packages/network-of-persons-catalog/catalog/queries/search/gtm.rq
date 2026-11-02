@@ -10,7 +10,7 @@ PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 # Only the person reconstructions of the knowledge graph are served; the source uses the
 # https://schema.org/ namespace, which the Network of Terms reads as well.
 CONSTRUCT {
-    ?uri a skos:Concept, sdo:Person ;
+    ?uri a ?conceptClass, ?personClass ;
         skos:prefLabel ?prefLabel ;
         skos:hiddenLabel ?hiddenLabel ;
         sdo:givenName ?givenName ;
@@ -62,9 +62,15 @@ WHERE {
     # per multi-valued property” in the Network of Terms catalog README. A reconstruction always has
     # exactly one sdo:name, so the first branch matches every result. It also holds the dates and
     # places, which a reconstruction has at most one of each.
+    #
+    # QLever constructs the template once per row and does not drop the duplicate triples, so a
+    # triple whose variables every row binds comes back once per value of every property. The
+    # classes are therefore bound in the first branch only.
     {
         {
             ?uri sdo:name ?prefLabel .
+            BIND(skos:Concept AS ?conceptClass)
+            BIND(sdo:Person AS ?personClass)
             # Dates are xsd:date or xsd:gYear: plain ISO 8601 at the source’s precision.
             OPTIONAL { ?uri sdo:birthDate ?birthDate }
             OPTIONAL { ?uri sdo:deathDate ?deathDate }

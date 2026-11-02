@@ -5,7 +5,7 @@ PREFIX schema: <http://schema.org/>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 
 CONSTRUCT {
-    ?uri a skos:Concept, schema:Person ;
+    ?uri a ?conceptClass, ?personClass ;
         ?constructedProperty ?value ;
         skos:hiddenLabel ?hiddenLabel .
     ?value schema:name ?relativeName .
@@ -68,9 +68,19 @@ WHERE {
             schema:name ?relativeName .
     }
 
-    # Spellings found in the sources: matched on, never shown.
+    # QLever constructs the template once per row and does not drop the duplicate triples, so a
+    # triple whose variables every row binds comes back once per property value. The classes and
+    # the spellings below are therefore joined to the name row only. An unbound variable in the IF
+    # leaves the class unbound.
+    BIND(IF(?property = schema:name, skos:Concept, ?noValue) AS ?conceptClass)
+    BIND(IF(?property = schema:name, schema:Person, ?noValue) AS ?personClass)
+
+    # Spellings found in the sources: matched on, never shown. The OPTIONAL binds ?property itself,
+    # so it joins the name row only: QLever evaluates a FILTER inside an OPTIONAL without the
+    # variables outside it, so a filter on ?property would drop every spelling.
     OPTIONAL {
         ?uri prov:wasDerivedFrom ?observation .
         ?observation schema:name|schema:alternateName ?hiddenLabel .
+        VALUES ?property { schema:name }
     }
 }
