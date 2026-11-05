@@ -8,7 +8,8 @@ PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 CONSTRUCT {
     ?uri a ?conceptClass, ?personClass ;
         ?constructedProperty ?value ;
-        skos:hiddenLabel ?hiddenLabel .
+        ?constructedObservationProperty ?observationValue ;
+        schema:familyName ?familyName .
     ?value schema:name ?relativeName .
 }
 # See the search query, queries/search/wo2personen.rq, for how the properties are read.
@@ -44,7 +45,27 @@ WHERE {
 
     OPTIONAL {
         ?uri prov:wasDerivedFrom ?observation .
-        ?observation schema:name|schema:alternateName ?hiddenLabel .
         VALUES ?property { rdf:type }
+        ?observation ?observationProperty ?observationValue .
+        VALUES (?observationProperty ?constructedObservationProperty) {
+            (schema:name skos:hiddenLabel)
+            (schema:alternateName skos:hiddenLabel)
+            (schema:givenName schema:givenName)
+            (schema:familyName UNDEF)
+        }
+        # The family name row also needs the names to find its prefix in, below.
+        OPTIONAL {
+            ?observation schema:name ?observationName .
+            VALUES ?observationProperty { schema:familyName }
+        }
     }
+
+    BIND(SUBSTR(?observationName, 1, STRLEN(?observationName) - STRLEN(?observationValue) - 1) AS ?nameBeforeFamilyName)
+    BIND(IF(
+        STRENDS(?observationName, CONCAT(" ", ?observationValue)) && REGEX(?nameBeforeFamilyName, " [a-z'’]+$"),
+        CONCAT(REPLACE(?nameBeforeFamilyName, "^.*? ((?:[a-z'’]+ ?)+)$", "$1"), " ", ?observationValue),
+        ?observationValue
+    ) AS ?prefixedFamilyName)
+    # ?unbound is never bound, so the other rows bind no family name.
+    BIND(IF(?observationProperty = schema:familyName, COALESCE(?prefixedFamilyName, ?observationValue), ?unbound) AS ?familyName)
 }

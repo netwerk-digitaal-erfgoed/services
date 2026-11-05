@@ -9,7 +9,8 @@ PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 CONSTRUCT {
     ?uri a ?conceptClass, ?personClass ;
         ?constructedProperty ?value ;
-        skos:hiddenLabel ?hiddenLabel .
+        ?constructedObservationProperty ?observationValue ;
+        schema:familyName ?familyName .
     ?value schema:name ?relativeName .
 }
 WHERE {
@@ -80,9 +81,41 @@ WHERE {
     # Spellings found in the sources: matched on, never shown. The OPTIONAL binds ?property to join
     # the type row only: a UNION branch of their own runs QLever out of memory, as it evaluates the
     # branch over the whole dataset before joining it to the results.
+    #
+    # The name parts come from the observations too, as the reconstructions state none: WO2Net
+    # names a reconstruction for display only, without a claim about its given and family name.
+    # Observations that disagree give the person more than one.
+    #
+    # One pattern for all four properties, so an observation gives a row per value: in separate
+    # OPTIONALs they multiply, and one observation states 22 names, 16 alternate names, 16 given
+    # names and 9 family names. Only a family name multiplies, by the names, to find its prefix in.
     OPTIONAL {
         ?uri prov:wasDerivedFrom ?observation .
-        ?observation schema:name|schema:alternateName ?hiddenLabel .
         VALUES ?property { rdf:type }
+        ?observation ?observationProperty ?observationValue .
+        VALUES (?observationProperty ?constructedObservationProperty) {
+            (schema:name skos:hiddenLabel)
+            (schema:alternateName skos:hiddenLabel)
+            (schema:givenName schema:givenName)
+            (schema:familyName UNDEF)
+        }
+        # The family name row also needs the names to find its prefix in, below.
+        OPTIONAL {
+            ?observation schema:name ?observationName .
+            VALUES ?observationProperty { schema:familyName }
+        }
     }
+
+    # Some sources leave the prefix out of the family name (‘Vries’ for Dick de Vries), and no
+    # property states it. It is the lowercase words before the family name at the end of the
+    # observation’s name. Bound here, after the joins: inside the OPTIONAL, QLever computes it
+    # for every observation in the dataset, which took a search from 1 to 15 seconds.
+    BIND(SUBSTR(?observationName, 1, STRLEN(?observationName) - STRLEN(?observationValue) - 1) AS ?nameBeforeFamilyName)
+    BIND(IF(
+        STRENDS(?observationName, CONCAT(" ", ?observationValue)) && REGEX(?nameBeforeFamilyName, " [a-z'’]+$"),
+        CONCAT(REPLACE(?nameBeforeFamilyName, "^.*? ((?:[a-z'’]+ ?)+)$", "$1"), " ", ?observationValue),
+        ?observationValue
+    ) AS ?prefixedFamilyName)
+    # ?unbound is never bound, so the other rows bind no family name.
+    BIND(IF(?observationProperty = schema:familyName, COALESCE(?prefixedFamilyName, ?observationValue), ?unbound) AS ?familyName)
 }

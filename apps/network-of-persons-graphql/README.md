@@ -252,7 +252,7 @@ A field the dataset doesn’t state is empty or `null`.
 | `scopeNote`               |                                      | ✓                                    |                                      |
 | `exactMatch`              | ✓                                    |                                      |                                      |
 | `seeAlso`                 | Observations                         | Observations                         | Observations, family trees           |
-| `givenName`, `familyName` |                                      | ✓                                    | ✓                                    |
+| `givenName`, `familyName` | From the observations                | ✓                                    | ✓                                    |
 | Dates                     | ✓                                    | ✓                                    | ✓                                    |
 | Places                    | Name and WO2 Thesaurus URI, unpaired | Name                                 | GemeenteGeschiedenis URI and name    |
 | `gender`                  | ✓                                    | ✓                                    | ✓                                    |

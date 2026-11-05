@@ -60,7 +60,11 @@ of its own:
   an `OPTIONAL` that binds `?property`. A `UNION` branch of their own runs
   QLever out of memory, and QLever evaluates a `FILTER` inside an `OPTIONAL`
   without the variables outside it, so filtering on `?property` there drops
-  every spelling.
+  every spelling. The given and family names, which the reconstructions do not
+  state, come from the observations on the same row, through one
+  property/value pattern with a `VALUES` table of its own. In an `OPTIONAL`
+  per property they would multiply: one observation states 22 names, 16
+  alternate names, 16 given names and 9 family names.
 
 A person the bound row misses loses its classes, and the Network of Terms then
 leaves it out. Counted on 2026-11-02: every Gouda Tijdmachine and WO2-personen
@@ -69,8 +73,20 @@ exactly one type.
 
 Some duplicates remain, and are not worth a more complex query: a relative or
 place that several persons in a result share is described once for each of
-them, and a spelling found in several observations of a person comes back once
-for each.
+them, and a spelling or name part found in several observations of a person
+comes back once for each.
+
+## WO2-personen family names
+
+Some WO2-personen sources leave the prefix out of the family name: ‘Vries’ for
+Dick de Vries, whose name is ‘Dick de Vries’. No property states the prefix.
+On 2026-11-05, 248513 observations did include it, such as ‘de Vries’. The
+queries take the prefix from the observation’s name: the lowercase words
+before the family name at the end of it. A family name that is not at the end
+of the name, or follows no lowercase word, is returned as the source states it.
+They do this in a `BIND` at the end of the query, after the joins: inside the
+`OPTIONAL`, QLever computes it for every observation in the dataset, which
+took a search from 1 to 15 seconds.
 
 For ‘Jan Jansen’ at a limit of 1000, this made the search responses 53–79%
 smaller – Open Archieven from 11.6 to 4.4 MB – with the same distinct triples.
