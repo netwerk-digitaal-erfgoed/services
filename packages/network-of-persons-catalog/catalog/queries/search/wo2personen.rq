@@ -2,6 +2,7 @@ PREFIX picom: <https://personsincontext.org/model#>
 PREFIX prov: <http://www.w3.org/ns/prov#>
 PREFIX ql: <http://qlever.cs.uni-freiburg.de/builtin-functions/>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX schema: <http://schema.org/>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 
@@ -64,6 +65,8 @@ WHERE {
         (schema:children schema:children UNDEF UNDEF)
         (schema:spouse schema:spouse UNDEF UNDEF)
         (schema:sibling schema:sibling UNDEF UNDEF)
+        # The observations the reconstruction was derived from: pages on Oorlogslevens.
+        (prov:wasDerivedFrom rdfs:seeAlso UNDEF UNDEF)
     }
 
     # A relative is a reconstruction too, named on the row that states the relation, so its names do

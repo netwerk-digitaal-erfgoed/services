@@ -244,20 +244,20 @@ search matches on; show `prefLabel` and `altLabel` to users.
 
 A field the dataset doesn’t state is empty or `null`.
 
-| Field                     | WO2-personen                         | Open Archieven                       | Gouda Tijdmachine                 |
-| ------------------------- | ------------------------------------ | ------------------------------------ | --------------------------------- |
-| `prefLabel`               | ✓                                    | Alphabetically first spelling        | ✓                                 |
-| `altLabel`                | ✓                                    | Other spellings                      |                                   |
-| `hiddenLabel`             | Observation names                    |                                      | Observation names                 |
-| `scopeNote`               |                                      | ✓                                    |                                   |
-| `exactMatch`              | ✓                                    |                                      |                                   |
-| `seeAlso`                 |                                      | Observations                         | Observations, family trees        |
-| `givenName`, `familyName` |                                      | ✓                                    | ✓                                 |
-| Dates                     | ✓                                    | ✓                                    | ✓                                 |
-| Places                    | Name and WO2 Thesaurus URI, unpaired | Name                                 | GemeenteGeschiedenis URI and name |
-| `gender`                  | ✓                                    | ✓                                    | ✓                                 |
-| `hasOccupation`           |                                      | ✓                                    | ✓                                 |
-| Family                    | Parents, children, spouses, siblings | Parents, children, spouses, siblings | Parents, children, spouses        |
+| Field                     | WO2-personen                         | Open Archieven                       | Gouda Tijdmachine                    |
+| ------------------------- | ------------------------------------ | ------------------------------------ | ------------------------------------ |
+| `prefLabel`               | ✓                                    | Alphabetically first spelling        | ✓                                    |
+| `altLabel`                | ✓                                    | Other spellings                      |                                      |
+| `hiddenLabel`             | Observation names                    |                                      | Observation names                    |
+| `scopeNote`               |                                      | ✓                                    |                                      |
+| `exactMatch`              | ✓                                    |                                      |                                      |
+| `seeAlso`                 | Observations                         | Observations                         | Observations, family trees           |
+| `givenName`, `familyName` |                                      | ✓                                    | ✓                                    |
+| Dates                     | ✓                                    | ✓                                    | ✓                                    |
+| Places                    | Name and WO2 Thesaurus URI, unpaired | Name                                 | GemeenteGeschiedenis URI and name    |
+| `gender`                  | ✓                                    | ✓                                    | ✓                                    |
+| `hasOccupation`           |                                      | ✓                                    | ✓                                    |
+| Family                    | Parents, children, spouses, siblings | Parents, children, spouses, siblings | Parents, children, spouses, siblings |
 
 ## Deployment
 

@@ -25,9 +25,10 @@ Each dataset has its own reconciliation endpoint:
 
 ## Using the API from OpenRefine
 
-Add an endpoint as a standard service and reconcile against no particular type,
-as described in
+Add an endpoint as a standard service and reconcile against the Person type
+(`https://schema.org/Person`), which OpenRefine suggests, as described in
 [Using the API from OpenRefine](https://docs.nde.nl/services/network-of-terms/reconciliation#using-the-api-from-openrefine).
+Every person in these datasets is of that type.
 
 Each candidate shows the person’s name, with the birth and death dates and the
 other names in its description, so you can tell namesakes apart:
@@ -53,10 +54,13 @@ curl -X POST \
 }
 ```
 
-Matching uses the name only. Values from other columns, such as a birth date,
-are not used to rank candidates, so every ‘Jan de Vries’ scores the same. Match
-common names by hand, using the dates in the description and the preview, or
-narrow them down afterwards with the columns below.
+To tell every ‘Jan de Vries’ apart, send values from other columns along, such
+as a birth date, birthplace or parent: the candidates whose values match rank
+first, and a single candidate that matches on everything is matched
+automatically. See
+[Matching persons on more than their name](https://docs.nde.nl/services/network-of-terms/reconciliation#matching-persons-on-more-than-their-name).
+Hover over a candidate for its preview, with the dates, places, occupations and
+family members that set namesakes apart.
 
 Names are matched as whole words, with the same QLever limitations as a
 [GraphQL search](../network-of-persons-graphql/README.md#search-persons): a cell
@@ -67,18 +71,24 @@ with ‘Zwanenveld, Dirk’ finds nothing until you remove the comma.
 Once a column is reconciled, choose **Edit column → Add columns from reconciled
 values…** to fetch what the dataset states about each person:
 
-| Property                     | Values                                                            |
-| ---------------------------- | ----------------------------------------------------------------- |
-| `prefLabels`, `altLabels`    | Names                                                             |
-| `scopeNotes`                 | Descriptions, where the dataset has them                          |
-| `birthDates`, `deathDates`   | Dates, as [EDTF](https://www.loc.gov/standards/datetime/) strings |
-| `birthPlaces`, `deathPlaces` | Place names, and for WO2-personen also WO2 Thesaurus URIs         |
-| `genders`                    | `https://schema.org/Male` or `https://schema.org/Female`          |
+| Property                                     | Values                                                            |
+| -------------------------------------------- | ----------------------------------------------------------------- |
+| `prefLabels`, `altLabels`                    | Names                                                             |
+| `givenNames`, `familyNames`                  | Parts of the name                                                 |
+| `scopeNotes`                                 | Descriptions, where the dataset has them                          |
+| `birthDates`, `deathDates`                   | Dates, as [EDTF](https://www.loc.gov/standards/datetime/) strings |
+| `birthPlaces`, `deathPlaces`                 | Place names, and for WO2-personen also WO2 Thesaurus URIs         |
+| `genders`                                    | `https://schema.org/Male` or `https://schema.org/Female`          |
+| `occupations`                                | Occupation names                                                  |
+| `parents`, `children`, `spouses`, `siblings` | Family members, as persons reconciled in the same dataset         |
+| `relatedTerms`                               | Family members, whatever the relation, except for WO2-personen    |
+| `exactMatches`                               | The same person in other datasets, for WO2-personen               |
+| `seeAlso`                                    | Web pages of the records the person was reconstructed from        |
 
-For what each dataset states, see
+A family member column is reconciled against Person too, so you can add its
+properties in turn, such as the birth dates of each person’s parents. For what
+each dataset states, see
 [Differences between datasets](../network-of-persons-graphql/README.md#differences-between-datasets).
-For occupations and family members, use the
-[GraphQL API](../network-of-persons-graphql/README.md).
 
 ## Deployment
 

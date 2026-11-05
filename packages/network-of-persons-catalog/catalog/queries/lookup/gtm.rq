@@ -52,7 +52,7 @@ WHERE {
         UNION { ?uri sdo:hasOccupation ?occupation }
         UNION {
             ?uri ?relation ?related_uri .
-            VALUES ?relation { sdo:spouse sdo:parent sdo:children }
+            VALUES ?relation { sdo:spouse sdo:parent sdo:children sdo:sibling }
             ?related_uri sdo:name ?related_prefLabel .
         }
         UNION { ?uri prov:wasDerivedFrom ?observation }
