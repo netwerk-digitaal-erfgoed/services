@@ -91,7 +91,7 @@ WHERE {
         # is constructed under its own relation, and as skos:related too, which clients read today.
         UNION {
             ?uri ?relation ?related_uri .
-            VALUES ?relation { sdo:spouse sdo:parent sdo:children }
+            VALUES ?relation { sdo:spouse sdo:parent sdo:children sdo:sibling }
             ?related_uri sdo:name ?related_prefLabel .
         }
         # The observations the reconstruction was derived from; their URIs dereference.

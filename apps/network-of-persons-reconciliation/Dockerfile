@@ -1,4 +1,4 @@
-FROM ghcr.io/netwerk-digitaal-erfgoed/network-of-terms-reconciliation:20261014133938-3e74db7
+FROM ghcr.io/netwerk-digitaal-erfgoed/network-of-terms-reconciliation:20261105151651-7670151
 LABEL org.opencontainers.image.source="https://github.com/netwerk-digitaal-erfgoed/services"
 
 # Serve our catalogue instead of the Network of Terms one.
