@@ -7,7 +7,7 @@ PREFIX sdo: <https://schema.org/>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 
 CONSTRUCT {
-    ?uri a skos:Concept, sdo:Person ;
+    ?uri a ?conceptClass, ?personClass ;
         skos:prefLabel ?prefLabel ;
         skos:hiddenLabel ?hiddenLabel ;
         sdo:givenName ?givenName ;
@@ -34,12 +34,14 @@ WHERE {
     {
         {
             ?uri sdo:name ?prefLabel .
+            BIND(skos:Concept AS ?conceptClass)
+            BIND(sdo:Person AS ?personClass)
             OPTIONAL { ?uri sdo:birthDate ?birthDate }
             OPTIONAL { ?uri sdo:deathDate ?deathDate }
             OPTIONAL { ?uri sdo:gender ?gender }
-            OPTIONAL { ?uri sdo:birthPlace ?birthPlace . ?birthPlace sdo:name ?birthPlaceName }
-            OPTIONAL { ?uri sdo:deathPlace ?deathPlace . ?deathPlace sdo:name ?deathPlaceName }
         }
+        UNION { ?uri sdo:birthPlace ?birthPlace . ?birthPlace sdo:name ?birthPlaceName }
+        UNION { ?uri sdo:deathPlace ?deathPlace . ?deathPlace sdo:name ?deathPlaceName }
         UNION { ?uri pnv:hasName/pnv:givenName ?givenName }
         UNION {
             ?uri pnv:hasName ?name .

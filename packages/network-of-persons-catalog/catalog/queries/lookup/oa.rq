@@ -5,7 +5,7 @@ PREFIX sdo: <https://schema.org/>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 
 CONSTRUCT {
-    ?uri a skos:Concept, sdo:Person ;
+    ?uri a ?conceptClass, ?personClass ;
         skos:prefLabel ?prefLabel ;
         skos:altLabel ?altLabel ;
         skos:scopeNote ?description ;
@@ -30,7 +30,7 @@ WHERE {
 
     {
         # The alphabetically first name spelling is the preferred label, the others are altLabels.
-        SELECT ?uri (MIN(?name) AS ?prefLabel) WHERE {
+        SELECT ?uri (MIN(?name) AS ?firstName) WHERE {
             VALUES ?uri { ?uris }
             ?uri a picom:PersonReconstruction ;
                 sdo:name ?name .
@@ -39,7 +39,12 @@ WHERE {
     }
 
     {
-        { ?uri a picom:PersonReconstruction }
+        {
+            ?uri a picom:PersonReconstruction .
+            BIND(skos:Concept AS ?conceptClass)
+            BIND(sdo:Person AS ?personClass)
+        }
+        UNION { ?uri sdo:name ?prefLabel }
         UNION { ?uri sdo:name ?altLabel }
         UNION { ?uri sdo:givenName ?givenName }
         UNION { ?uri sdo:familyName ?familyName }
@@ -64,5 +69,6 @@ WHERE {
         UNION { ?uri prov:wasDerivedFrom ?observation }
     }
 
-    FILTER(!BOUND(?altLabel) || STR(?altLabel) != STR(?prefLabel))
+    FILTER(!BOUND(?prefLabel) || ?prefLabel = ?firstName)
+    FILTER(!BOUND(?altLabel) || STR(?altLabel) != STR(?firstName))
 }

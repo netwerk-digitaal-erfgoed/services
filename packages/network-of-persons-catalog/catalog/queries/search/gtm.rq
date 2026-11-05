@@ -10,7 +10,7 @@ PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 # Only the person reconstructions of the knowledge graph are served; the source uses the
 # https://schema.org/ namespace, which the Network of Terms reads as well.
 CONSTRUCT {
-    ?uri a skos:Concept, sdo:Person ;
+    ?uri a ?conceptClass, ?personClass ;
         skos:prefLabel ?prefLabel ;
         skos:hiddenLabel ?hiddenLabel ;
         sdo:givenName ?givenName ;
@@ -60,20 +60,23 @@ WHERE {
 
     # One UNION branch per multi-valued property, and not an OPTIONAL group: see “One UNION branch
     # per multi-valued property” in the Network of Terms catalog README. A reconstruction always has
-    # exactly one sdo:name, so the first branch matches every result. It also holds the dates and
-    # places, which a reconstruction has at most one of each.
+    # exactly one sdo:name, so the first branch matches every result, and is the one row per person
+    # the classes come from: see “Triples a person has once come from one row” in the catalog
+    # README. It also holds the dates and gender, which a reconstruction has at most one of each.
     {
         {
             ?uri sdo:name ?prefLabel .
+            BIND(skos:Concept AS ?conceptClass)
+            BIND(sdo:Person AS ?personClass)
             # Dates are xsd:date or xsd:gYear: plain ISO 8601 at the source’s precision.
             OPTIONAL { ?uri sdo:birthDate ?birthDate }
             OPTIONAL { ?uri sdo:deathDate ?deathDate }
             OPTIONAL { ?uri sdo:gender ?gender }
-            # Places are GemeenteGeschiedenis IRIs named in this graph; the Network of Terms returns
-            # them as entities with a URI and a name.
-            OPTIONAL { ?uri sdo:birthPlace ?birthPlace . ?birthPlace sdo:name ?birthPlaceName }
-            OPTIONAL { ?uri sdo:deathPlace ?deathPlace . ?deathPlace sdo:name ?deathPlaceName }
         }
+        # Places are GemeenteGeschiedenis IRIs named in this graph; the Network of Terms returns
+        # them as entities with a URI and a name. A place can have several names.
+        UNION { ?uri sdo:birthPlace ?birthPlace . ?birthPlace sdo:name ?birthPlaceName }
+        UNION { ?uri sdo:deathPlace ?deathPlace . ?deathPlace sdo:name ?deathPlaceName }
         # The name parts are stated on a pnv:PersonName node. The family name is the surname with
         # its prefix (“van der Berg”), both stated separately by the source.
         UNION { ?uri pnv:hasName/pnv:givenName ?givenName }
