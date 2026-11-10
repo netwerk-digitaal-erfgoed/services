@@ -119,9 +119,13 @@ returns both namespaces as `https://schema.org/Male` and
 one gender per reconstruction; 3110 current Open Archieven reconstructions
 state both, and come out with both.
 
-Regiotermen Fryslân states gender as a literal: “mannelijk”, “vrouwelijk” and
-“intersekse vrouw”, in varying case, some tagged `nl`. On 2026-11-10, 2459
-persons stated one, and none more than one.
+Regiotermen Fryslân states gender as a literal, in varying case, some tagged
+`nl`. On 2026-11-10, 2459 persons stated one, and none more than one: 2160
+“mannelijk”, 298 “vrouwelijk” and 1 “intersekse vrouw”. The queries return
+“mannelijk” as `https://schema.org/Male` and “vrouwelijk” as
+`https://schema.org/Female`, in any case, so the persons compare with those of
+the other datasets. Schema.org has no IRI for “intersekse vrouw”, which is
+returned as stated.
 
 Other person sources in the Network of Terms catalog state gender as literals
 too, which matters if one of them moves here:

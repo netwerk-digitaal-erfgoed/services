@@ -53,7 +53,13 @@ WHERE {
             ?uri sdo:name ?prefLabel .
             BIND(skos:Concept AS ?conceptClass)
             BIND(sdo:Person AS ?personClass)
-            OPTIONAL { ?uri sdo:gender ?gender }
+            # Stated as ‘mannelijk’ or ‘vrouwelijk’, in varying case, and returned as the Schema.org
+            # IRIs the other datasets state. Schema.org has none for the one ‘intersekse vrouw’.
+            OPTIONAL {
+                ?uri sdo:gender ?statedGender .
+                BIND(LCASE(STR(?statedGender)) AS ?genderName)
+                BIND(IF(?genderName = "mannelijk", sdo:Male, IF(?genderName = "vrouwelijk", sdo:Female, ?statedGender)) AS ?gender)
+            }
         }
         UNION { ?uri sdo:alternateName ?altLabel }
         # Wikidata, VIAF, the NTA and RKDartists.

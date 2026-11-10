@@ -27,7 +27,11 @@ WHERE {
             ?uri sdo:name ?prefLabel .
             BIND(skos:Concept AS ?conceptClass)
             BIND(sdo:Person AS ?personClass)
-            OPTIONAL { ?uri sdo:gender ?gender }
+            OPTIONAL {
+                ?uri sdo:gender ?statedGender .
+                BIND(LCASE(STR(?statedGender)) AS ?genderName)
+                BIND(IF(?genderName = "mannelijk", sdo:Male, IF(?genderName = "vrouwelijk", sdo:Female, ?statedGender)) AS ?gender)
+            }
         }
         UNION { ?uri sdo:alternateName ?altLabel }
         UNION { ?uri sdo:sameAs ?exactMatch }
