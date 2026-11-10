@@ -1,0 +1,84 @@
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sdo: <https://schema.org/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+# The persons graph the Network of Terms queries, <https://fryslan.regiotermen.nl/personen>, is SKOS
+# only. The same persons, under the same IRIs, are described in Schema.org in the clean graph,
+# which Tresoar derives from its Omeka S installation.
+CONSTRUCT {
+    ?uri a ?conceptClass, ?personClass ;
+        skos:prefLabel ?prefLabel ;
+        skos:altLabel ?altLabel ;
+        skos:exactMatch ?exactMatch ;
+        rdfs:seeAlso ?seeAlso ;
+        sdo:givenName ?givenName ;
+        sdo:familyName ?familyName ;
+        sdo:birthDate ?birthDate ;
+        sdo:deathDate ?deathDate ;
+        sdo:birthPlace ?birthPlace ;
+        sdo:deathPlace ?deathPlace ;
+        sdo:gender ?gender ;
+        sdo:hasOccupation ?occupation ;
+        sdo:description ?description .
+}
+WHERE {
+    GRAPH <https://fryslan.regiotermen.nl/personen/clean> {
+        {
+            # The endpoint returns at most 1000 triples and drops the rest without saying so. A
+            # person comes to 16 triples on average, 30 at most, so 50 persons fit, and the caller’s
+            # limit applies below that.
+            SELECT ?uri ?matchedNameLength WHERE {
+                {
+                    # The endpoint has no text index, so a name matches when it contains the search
+                    # string. The shortest matching names are the closest matches.
+                    SELECT ?uri (MIN(STRLEN(?matchedName)) AS ?matchedNameLength) WHERE {
+                        ?uri a sdo:Person ;
+                            sdo:name|sdo:alternateName ?matchedName .
+                        FILTER(CONTAINS(LCASE(?matchedName), LCASE(?query)))
+                    }
+                    GROUP BY ?uri
+                    ORDER BY ?matchedNameLength ?uri
+                    #LIMIT#
+                }
+            }
+            ORDER BY ?matchedNameLength ?uri
+            LIMIT 50
+        }
+
+        # One UNION branch per multi-valued property: see “One UNION branch per multi-valued
+        # property” in the Network of Terms catalog README. Every person has exactly one sdo:name and
+        # at most one gender, so the first branch is the one row per person the classes come from:
+        # see “Triples a person has once come from one row” in the catalog README.
+        {
+            ?uri sdo:name ?prefLabel .
+            BIND(skos:Concept AS ?conceptClass)
+            BIND(sdo:Person AS ?personClass)
+            # Stated as ‘mannelijk’ or ‘vrouwelijk’, in varying case, and returned as the Schema.org
+            # IRIs the other datasets state. Schema.org has none for the one ‘intersekse vrouw’.
+            OPTIONAL {
+                ?uri sdo:gender ?statedGender .
+                BIND(LCASE(STR(?statedGender)) AS ?genderName)
+                BIND(IF(?genderName = "mannelijk", sdo:Male, IF(?genderName = "vrouwelijk", sdo:Female, ?statedGender)) AS ?gender)
+            }
+        }
+        UNION { ?uri sdo:alternateName ?altLabel }
+        # Wikidata, VIAF, the NTA and RKDartists.
+        UNION { ?uri sdo:sameAs ?exactMatch }
+        # Biographies on Wikipedia and on the Tresoar website.
+        UNION { ?uri sdo:mainEntityOfPage ?seeAlso . FILTER(isIRI(?seeAlso)) }
+        UNION { ?uri sdo:givenName ?givenName }
+        # The family name includes its prefix: ‘van Rijn’.
+        UNION { ?uri sdo:familyName ?familyName }
+        # Some persons have two birth or death dates, days apart.
+        UNION { ?uri sdo:birthDate ?birthDate }
+        UNION { ?uri sdo:deathDate ?deathDate }
+        # GeoNames IRIs, or a name where the source links none.
+        UNION { ?uri sdo:birthPlace ?birthPlace }
+        UNION { ?uri sdo:deathPlace ?deathPlace }
+        # AAT IRIs, or a name where the source links none.
+        UNION { ?uri sdo:hasOccupation ?occupation }
+        UNION { ?uri sdo:description ?description }
+    }
+}
+# Should 50 persons still exceed 1000 triples, the endpoint drops the weakest matches first.
+ORDER BY ?matchedNameLength ?uri
