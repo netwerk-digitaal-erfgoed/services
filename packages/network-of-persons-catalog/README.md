@@ -2,12 +2,15 @@
 
 The catalog of the Network of Persons, a proof of concept that runs the
 [Network of Terms](https://github.com/netwerk-digitaal-erfgoed/network-of-terms)
-software over person datasets instead of terminology sources. It holds three
-datasets, all in the Persons in Context (PiCo) model:
+software over person datasets instead of terminology sources. It holds four
+datasets. Three are in the Persons in Context (PiCo) model:
 
 - WO2-personen of WO2Net
 - person reconstructions of [Open Archieven](https://www.openarchieven.nl/)
 - person reconstructions in the knowledge graph of the [Gouda Tijdmachine](https://www.goudatijdmachine.nl/).
+
+The fourth, the persons of [Regiotermen Fryslân](https://fryslan.regiotermen.nl/)
+of Tresoar, is in Schema.org: see [Regiotermen Fryslân](#regiotermen-fryslân).
 
 The format is the Network of Terms’: see its
 [catalog documentation](https://github.com/netwerk-digitaal-erfgoed/network-of-terms/tree/master/packages/catalog)
@@ -19,21 +22,24 @@ catalog/
 ├── datasets/
 │   ├── gtm.jsonld
 │   ├── oa.jsonld
+│   ├── rtf-personen.jsonld
 │   └── wo2personen.jsonld
 └── queries/
     ├── search/
     │   ├── gtm.rq
     │   ├── oa.rq
+    │   ├── rtf-personen.rq
     │   └── wo2personen.rq
     └── lookup/
         ├── gtm.rq
         ├── oa.rq
+        ├── rtf-personen.rq
         └── wo2personen.rq
 ```
 
 ## Triples a person has once come from one row
 
-All three datasets are served by QLever, which constructs the `CONSTRUCT`
+The three PiCo datasets are served by QLever, which constructs the `CONSTRUCT`
 template once per result row and does not drop the duplicate triples. The
 queries return a row per value of each property – one `UNION` branch per
 multi-valued property, as the Network of Terms’ query conventions prescribe – so
@@ -65,11 +71,15 @@ of its own:
   property/value pattern with a `VALUES` table of its own. In an `OPTIONAL`
   per property they would multiply: one observation states 22 names, 16
   alternate names, 16 given names and 9 family names.
+- Regiotermen Fryslân: in the branch with the name, as for the Gouda
+  Tijdmachine. Its GraphDB endpoint does not repeat triples, but the query
+  follows the same rule, so it doesn’t depend on that.
 
 A person the bound row misses loses its classes, and the Network of Terms then
 leaves it out. Counted on 2026-11-02: every Gouda Tijdmachine and WO2-personen
 reconstruction has exactly one name, and every WO2-personen reconstruction
-exactly one type.
+exactly one type. Counted on 2026-11-10: every Regiotermen Fryslân person has
+exactly one name.
 
 Some duplicates remain, and are not worth a more complex query: a relative or
 place that several persons in a result share is described once for each of
@@ -93,7 +103,7 @@ smaller – Open Archieven from 11.6 to 4.4 MB – with the same distinct triple
 
 ## Gender
 
-All three datasets state `schema:gender` as Schema.org’s `Male` or `Female`
+The three PiCo datasets state `schema:gender` as Schema.org’s `Male` or `Female`
 IRI, and nothing else. Counted on 2026-10-14 over every subject, observations
 included:
 
@@ -109,17 +119,48 @@ returns both namespaces as `https://schema.org/Male` and
 one gender per reconstruction; 3110 current Open Archieven reconstructions
 state both, and come out with both.
 
-Person sources in the Network of Terms catalog state gender as literals,
-which matters if one of them moves here:
+Regiotermen Fryslân states gender as a literal: “mannelijk”, “vrouwelijk” and
+“intersekse vrouw”, in varying case, some tagged `nl`. On 2026-11-10, 2459
+persons stated one, and none more than one.
+
+Other person sources in the Network of Terms catalog state gender as literals
+too, which matters if one of them moves here:
 
 - House of Legacies: “Man”, “Vrouw”, “Non-binair” and “Overig”, tagged `nl`.
-- The Frisian thesaurus: “mannelijk”, “vrouwelijk” and “intersekse vrouw”, in
-  varying case.
 - The WO2-biografieën: Dutch and English mixed, in varying case and with stray
   spaces and newlines – “Man”, “male”, “Male\n”, “Female”.
 
 The Network of Terms passes a literal through as stated, so these are not
 normalised to the Schema.org IRIs.
+
+## Regiotermen Fryslân
+
+Tresoar keeps its persons in Omeka S and publishes them in three named graphs
+on its GraphDB endpoint. The Network of Terms queries
+`https://fryslan.regiotermen.nl/personen`, which holds SKOS only. We query
+`https://fryslan.regiotermen.nl/personen/clean`, which describes the same 4347
+persons, under the same IRIs, in Schema.org: given and family names, dates,
+GeoNames places, AAT occupations, gender and alignments. A third graph,
+`…/personen/staging`, is the raw Omeka S export. It also states PNV name parts
+and relations such as `schema:spouse`, but under Omeka API IRIs, so we leave it
+out.
+
+The data as stated, on 2026-11-10:
+
+- Dates are mostly `xsd:date`, some `xsd:gYear` or `xsd:gYearMonth`, and a few
+  persons have two birth or death dates, days apart.
+- Places are GeoNames IRIs, as `https://sws.geonames.org/{id}` or
+  `https://www.geonames.org/{id}`, without the canonical trailing slash, or
+  names where the source links none. The queries pass them through.
+- Occupations are AAT IRIs, or names where the source links none.
+
+The endpoint returns at most 1000 results for any query, and drops the rest
+without notice. A person comes to 16 triples on average and 30 at most, so the
+search returns at most 50 persons, the closest matches, though the
+reconciliation service asks for 1000 when it ranks on properties and the
+GraphQL API for 100 by default. Should 50 persons still exceed 1000 triples,
+the query’s order makes the endpoint drop the weakest matches first, though
+the person at the cut may lose only some of its properties.
 
 ## How the catalog is deployed
 

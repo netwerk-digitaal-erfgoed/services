@@ -1,0 +1,44 @@
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sdo: <https://schema.org/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+CONSTRUCT {
+    ?uri a ?conceptClass, ?personClass ;
+        skos:prefLabel ?prefLabel ;
+        skos:altLabel ?altLabel ;
+        skos:exactMatch ?exactMatch ;
+        rdfs:seeAlso ?seeAlso ;
+        sdo:givenName ?givenName ;
+        sdo:familyName ?familyName ;
+        sdo:birthDate ?birthDate ;
+        sdo:deathDate ?deathDate ;
+        sdo:birthPlace ?birthPlace ;
+        sdo:deathPlace ?deathPlace ;
+        sdo:gender ?gender ;
+        sdo:hasOccupation ?occupation ;
+        sdo:description ?description .
+}
+# See the search query, queries/search/rtf-personen.rq, for how the properties are read.
+WHERE {
+    GRAPH <https://fryslan.regiotermen.nl/personen/clean> {
+        VALUES ?uri { ?uris }
+        ?uri a sdo:Person .
+        {
+            ?uri sdo:name ?prefLabel .
+            BIND(skos:Concept AS ?conceptClass)
+            BIND(sdo:Person AS ?personClass)
+            OPTIONAL { ?uri sdo:gender ?gender }
+        }
+        UNION { ?uri sdo:alternateName ?altLabel }
+        UNION { ?uri sdo:sameAs ?exactMatch }
+        UNION { ?uri sdo:mainEntityOfPage ?seeAlso . FILTER(isIRI(?seeAlso)) }
+        UNION { ?uri sdo:givenName ?givenName }
+        UNION { ?uri sdo:familyName ?familyName }
+        UNION { ?uri sdo:birthDate ?birthDate }
+        UNION { ?uri sdo:deathDate ?deathDate }
+        UNION { ?uri sdo:birthPlace ?birthPlace }
+        UNION { ?uri sdo:deathPlace ?deathPlace }
+        UNION { ?uri sdo:hasOccupation ?occupation }
+        UNION { ?uri sdo:description ?description }
+    }
+}
