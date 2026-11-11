@@ -2,7 +2,7 @@
 
 Use the Network of Persons reconciliation service to **match a column of names
 in your data to persons** in one of the
-[datasets](../network-of-persons-graphql/README.md#datasets), typically in
+[datasets](../../packages/network-of-persons-catalog/README.md#datasets), typically in
 [OpenRefine](https://openrefine.org). This is the
 [Network of Terms Reconciliation API](https://docs.nde.nl/services/network-of-terms/reconciliation)
 over person datasets: version 0.2 of the Reconciliation Service API, with the
@@ -17,11 +17,14 @@ same [language selection](https://docs.nde.nl/services/network-of-terms/reconcil
 
 Each dataset has its own reconciliation endpoint:
 
-| Dataset                               | Endpoint                                                                                                              |
-| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| WO2-personen                          | `https://personennetwerk.netwerkdigitaalerfgoed.nl/reconcile/https://data.niod.nl/WO2_personen`                       |
-| Open Archieven Persoonsreconstructies | `https://personennetwerk.netwerkdigitaalerfgoed.nl/reconcile/https://www.openarchieven.nl/id/dataset_reconstructions` |
-| Gouda Tijdmachine                     | `https://personennetwerk.netwerkdigitaalerfgoed.nl/reconcile/https://n2t.net/ark:/60537/bD64Hu`                       |
+```
+https://personennetwerk.netwerkdigitaalerfgoed.nl/reconcile/{source URI}
+```
+
+with the source URI from the
+[list of datasets](../../packages/network-of-persons-catalog/README.md#datasets).
+For WO2-personen, that is
+`https://personennetwerk.netwerkdigitaalerfgoed.nl/reconcile/https://data.niod.nl/WO2_personen`.
 
 ## Using the API from OpenRefine
 
@@ -62,7 +65,7 @@ automatically. See
 Hover over a candidate for its preview, with the dates, places, occupations and
 family members that set namesakes apart.
 
-Names are matched as whole words, with the same QLever limitations as a
+Names are matched as in a
 [GraphQL search](../network-of-persons-graphql/README.md#search-persons): a cell
 with ‘Zwanenveld, Dirk’ finds nothing until you remove the comma.
 
@@ -71,19 +74,19 @@ with ‘Zwanenveld, Dirk’ finds nothing until you remove the comma.
 Once a column is reconciled, choose **Edit column → Add columns from reconciled
 values…** to fetch what the dataset states about each person:
 
-| Property                                     | Values                                                            |
-| -------------------------------------------- | ----------------------------------------------------------------- |
-| `prefLabels`, `altLabels`                    | Names                                                             |
-| `givenNames`, `familyNames`                  | Parts of the name                                                 |
-| `scopeNotes`                                 | Descriptions, where the dataset has them                          |
-| `birthDates`, `deathDates`                   | Dates, as [EDTF](https://www.loc.gov/standards/datetime/) strings |
-| `birthPlaces`, `deathPlaces`                 | Place names, and for WO2-personen also WO2 Thesaurus URIs         |
-| `genders`                                    | `https://schema.org/Male` or `https://schema.org/Female`          |
-| `occupations`                                | Occupation names                                                  |
-| `parents`, `children`, `spouses`, `siblings` | Family members, as persons reconciled in the same dataset         |
-| `relatedTerms`                               | Family members, whatever the relation, except for WO2-personen    |
-| `exactMatches`                               | The same person in other datasets, for WO2-personen               |
-| `seeAlso`                                    | Web pages of the records the person was reconstructed from        |
+| Property                                     | Values                                                                              |
+| -------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `prefLabels`, `altLabels`                    | Names                                                                               |
+| `givenNames`, `familyNames`                  | Parts of the name                                                                   |
+| `scopeNotes`                                 | Descriptions, where the dataset has them                                            |
+| `birthDates`, `deathDates`                   | Dates, as [EDTF](https://www.loc.gov/standards/datetime/) strings                   |
+| `birthPlaces`, `deathPlaces`                 | Place names, or WO2 Thesaurus or GeoNames URIs                                      |
+| `genders`                                    | `https://schema.org/Male` or `https://schema.org/Female`                            |
+| `occupations`                                | Occupation names, or AAT URIs                                                       |
+| `parents`, `children`, `spouses`, `siblings` | Family members, as persons reconciled in the same dataset                           |
+| `relatedTerms`                               | Family members, whatever the relation, for Open Archieven and the Gouda Tijdmachine |
+| `exactMatches`                               | The same person in other datasets, for WO2-personen and Regiotermen Fryslân         |
+| `seeAlso`                                    | Web pages of the records the person was reconstructed from, or biographies          |
 
 A family member column is reconciled against Person too, so you can add its
 properties in turn, such as the birth dates of each person’s parents. For what
@@ -94,4 +97,4 @@ each dataset states, see
 
 The image is the upstream Network of Terms reconciliation image with the
 [Network of Persons catalog](../../packages/network-of-persons-catalog) copied
-in. See the [catalog README](../../packages/network-of-persons-catalog/README.md#how-the-catalogue-is-deployed).
+in. See the [catalog README](../../packages/network-of-persons-catalog/README.md#how-the-catalog-is-deployed).

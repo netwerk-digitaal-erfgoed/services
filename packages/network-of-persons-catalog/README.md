@@ -2,15 +2,30 @@
 
 The catalog of the Network of Persons, a proof of concept that runs the
 [Network of Terms](https://github.com/netwerk-digitaal-erfgoed/network-of-terms)
-software over person datasets instead of terminology sources. It holds four
-datasets. Three are in the Persons in Context (PiCo) model:
+software over person datasets instead of terminology sources. To search the
+datasets, use the [GraphQL API](../../apps/network-of-persons-graphql/README.md);
+to match a column of names, the
+[reconciliation service](../../apps/network-of-persons-reconciliation/README.md).
 
-- WO2-personen of WO2Net
-- person reconstructions of [Open Archieven](https://www.openarchieven.nl/)
-- person reconstructions in the knowledge graph of the [Gouda Tijdmachine](https://www.goudatijdmachine.nl/).
+## Datasets
 
-The fourth, the persons of [Regiotermen Fryslân](https://fryslan.regiotermen.nl/)
-of Tresoar, is in Schema.org: see [Regiotermen Fryslân](#regiotermen-fryslân).
+| Dataset                                                                                        | Publisher         | Source URI                                                | Persons |
+| ---------------------------------------------------------------------------------------------- | ----------------- | --------------------------------------------------------- | ------- |
+| [WO2-personen](https://www.oorlogsbronnen.nl/personen)                                         | WO2Net            | `https://data.niod.nl/WO2_personen`                       | 813747  |
+| [Open Archieven Persoonsreconstructies](https://www.openarchieven.nl/datasets/reconstructions) | Open Archieven    | `https://www.openarchieven.nl/id/dataset_reconstructions` | 8835746 |
+| [Gouda Tijdmachine](https://www.goudatijdmachine.nl/) Kennisgraaf: persoonsreconstructies      | Gouda Tijdmachine | `https://n2t.net/ark:/60537/bD64Hu`                       | 648161  |
+| [Regiotermen Fryslân: Personen](https://fryslan.regiotermen.nl/)                               | Tresoar           | `https://fryslan.regiotermen.nl/personen`                 | 4347    |
+
+Persons counted on 2026-11-11; for Open Archieven, the current reconstructions
+only.
+
+The first three use the [Persons in Context (PiCo)](https://personsincontext.org)
+model, where a person is a _reconstruction_ put together from _observations_:
+the mentions of that person in birth certificates, marriage records and
+population registers. The APIs return reconstructions. Regiotermen Fryslân is a
+regional thesaurus in Schema.org: see [Regiotermen Fryslân](#regiotermen-fryslân).
+
+## Catalog format
 
 The format is the Network of Terms’: see its
 [catalog documentation](https://github.com/netwerk-digitaal-erfgoed/network-of-terms/tree/master/packages/catalog)
