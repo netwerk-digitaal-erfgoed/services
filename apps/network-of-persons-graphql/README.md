@@ -1,7 +1,7 @@
 # Network of Persons GraphQL API
 
 This is the [Network of Terms GraphQL API](https://docs.nde.nl/services/network-of-terms/graphql)
-over [person datasets](#datasets). Its queries, [errors](https://docs.nde.nl/services/network-of-terms/graphql#query-a-single-source),
+over [person datasets](../../packages/network-of-persons-catalog/README.md#datasets). Its queries, [errors](https://docs.nde.nl/services/network-of-terms/graphql#query-a-single-source),
 [language selection](https://docs.nde.nl/services/network-of-terms/graphql#language-selection)
 and [timeouts](https://docs.nde.nl/services/network-of-terms/graphql#timeouts)
 work as documented there; this README covers what is specific to persons.
@@ -11,21 +11,9 @@ work as documented there; this README covers what is specific to persons.
 > may change or disappear without notice. Do not build production integrations
 > on it.
 
-## Datasets
-
-| Dataset                                                                                        | Publisher         | Source URI                                                |
-| ---------------------------------------------------------------------------------------------- | ----------------- | --------------------------------------------------------- |
-| [WO2-personen](https://www.oorlogsbronnen.nl/personen)                                         | WO2Net            | `https://data.niod.nl/WO2_personen`                       |
-| [Open Archieven Persoonsreconstructies](https://www.openarchieven.nl/datasets/reconstructions) | Open Archieven    | `https://www.openarchieven.nl/id/dataset_reconstructions` |
-| Gouda Tijdmachine Kennisgraaf: persoonsreconstructies                                          | Gouda Tijdmachine | `https://n2t.net/ark:/60537/bD64Hu`                       |
-
-All three use the [Persons in Context (PiCo)](https://personsincontext.org)
-model, where a person is a _reconstruction_ put together from _observations_:
-the mentions of that person in birth certificates, marriage records and
-population registers. The API returns reconstructions.
-
-To match a column of names, use the
-[reconciliation service](../network-of-persons-reconciliation/README.md).
+The [catalog README](../../packages/network-of-persons-catalog/README.md#datasets)
+lists the datasets, with the source URIs to query. To match a column of names,
+use the [reconciliation service](../network-of-persons-reconciliation/README.md).
 
 ## Endpoint
 
@@ -41,6 +29,7 @@ query {
       "https://data.niod.nl/WO2_personen"
       "https://www.openarchieven.nl/id/dataset_reconstructions"
       "https://n2t.net/ark:/60537/bD64Hu"
+      "https://fryslan.regiotermen.nl/personen"
     ]
     query: "Zwanenveld"
     languages: [nl]
@@ -74,13 +63,18 @@ including spelling variants: the observation names in WO2-personen and Gouda
 Tijdmachine, the other names of a reconstruction in Open Archieven. So
 ‘Zwanenveld’ finds Dirk Zwaneveld in WO2-personen. The matching is done by the
 full-text index of [QLever](https://github.com/ad-freiburg/qlever), which serves
-all three datasets and splits names into words at every character that is not a
-letter or digit. Hence:
+the three PiCo datasets and splits names into words at every character that is
+not a letter or digit. Hence:
 
 - ‘Zwanenv’ finds nothing. For a prefix search, end the word with `*` and set
   `queryMode: RAW`. QLever has no infix or fuzzy search.
 - Punctuation finds nothing: search for ‘Zwanenveld Dirk’, not
   ‘Zwanenveld, Dirk’.
+
+Regiotermen Fryslân is served by GraphDB without a text index, so a name matches
+when it contains the search string, in any case: ‘Zwanenv’ finds ‘Zwanenveld’
+there, but ‘Jansen Jan’ does not find ‘Jan Jansen’. It returns at most 50
+persons, as its endpoint drops results beyond 1000 triples.
 
 When more persons match than `limit` allows, those with the shortest matching
 name are returned, so ‘Jan de Vries’ goes before ‘Jan Hendrik de Vries’. Results are then sorted
@@ -224,7 +218,7 @@ its links to other sources in `exactMatch`. What SKOS cannot express is in
 | `birthDate`, `deathDate`                  | [EDTF](https://www.loc.gov/standards/datetime/) string at the known precision: `1919-08-08`, `1872`, `1905/1906` |
 | `birthPlace`, `deathPlace`                | Places, each with a `uri`, a `name` or both                                                                      |
 | `gender`                                  | `https://schema.org/Male` or `https://schema.org/Female`, without a name                                         |
-| `hasOccupation`                           | Occupations as spelled in the observations, in `roleName`                                                        |
+| `hasOccupation`                           | Occupations as spelled in the source, in `roleName`, or as an `occupation` with an AAT `uri`                     |
 | `nationality`                             | Not stated by any dataset yet                                                                                    |
 | `parent`, `children`, `spouse`, `sibling` | Persons in the same dataset, to look up by `uri`; also in `related`                                              |
 
@@ -244,23 +238,23 @@ search matches on; show `prefLabel` and `altLabel` to users.
 
 A field the dataset doesn’t state is empty or `null`.
 
-| Field                     | WO2-personen                         | Open Archieven                       | Gouda Tijdmachine                    |
-| ------------------------- | ------------------------------------ | ------------------------------------ | ------------------------------------ |
-| `prefLabel`               | ✓                                    | Alphabetically first spelling        | ✓                                    |
-| `altLabel`                | ✓                                    | Other spellings                      |                                      |
-| `hiddenLabel`             | Observation names                    |                                      | Observation names                    |
-| `scopeNote`               |                                      | ✓                                    |                                      |
-| `exactMatch`              | ✓                                    |                                      |                                      |
-| `seeAlso`                 | Observations                         | Observations                         | Observations, family trees           |
-| `givenName`, `familyName` | From the observations                | ✓                                    | ✓                                    |
-| Dates                     | ✓                                    | ✓                                    | ✓                                    |
-| Places                    | Name and WO2 Thesaurus URI, unpaired | Name                                 | GemeenteGeschiedenis URI and name    |
-| `gender`                  | ✓                                    | ✓                                    | ✓                                    |
-| `hasOccupation`           |                                      | ✓                                    | ✓                                    |
-| Family                    | Parents, children, spouses, siblings | Parents, children, spouses, siblings | Parents, children, spouses, siblings |
+| Field                     | WO2-personen                         | Open Archieven                       | Gouda Tijdmachine                    | Regiotermen Fryslân             |
+| ------------------------- | ------------------------------------ | ------------------------------------ | ------------------------------------ | ------------------------------- |
+| `prefLabel`               | ✓                                    | Alphabetically first spelling        | ✓                                    | ✓                               |
+| `altLabel`                | ✓                                    | Other spellings                      |                                      | ✓                               |
+| `hiddenLabel`             | Observation names                    |                                      | Observation names                    |                                 |
+| `scopeNote`               |                                      | ✓                                    |                                      |                                 |
+| `exactMatch`              | ✓                                    |                                      |                                      | Wikidata, VIAF, NTA, RKDartists |
+| `seeAlso`                 | Observations                         | Observations                         | Observations, family trees           | Biographies                     |
+| `givenName`, `familyName` | From the observations                | ✓                                    | ✓                                    | ✓                               |
+| Dates                     | ✓                                    | ✓                                    | ✓                                    | ✓                               |
+| Places                    | Name and WO2 Thesaurus URI, unpaired | Name                                 | GemeenteGeschiedenis URI and name    | GeoNames URI, or name           |
+| `gender`                  | ✓                                    | ✓                                    | ✓                                    | ✓                               |
+| `hasOccupation`           |                                      | ✓                                    | ✓                                    | AAT URI, or name                |
+| Family                    | Parents, children, spouses, siblings | Parents, children, spouses, siblings | Parents, children, spouses, siblings |                                 |
 
 ## Deployment
 
 The image is the upstream Network of Terms GraphQL image with the
 [Network of Persons catalog](../../packages/network-of-persons-catalog) copied
-in. See the [catalog README](../../packages/network-of-persons-catalog/README.md#how-the-catalogue-is-deployed).
+in. See the [catalog README](../../packages/network-of-persons-catalog/README.md#how-the-catalog-is-deployed).
