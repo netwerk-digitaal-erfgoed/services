@@ -76,25 +76,26 @@ of its own:
 - Gouda Tijdmachine: in the branch with the name, which every reconstruction
   has exactly one of.
 - WO2-personen: in extra columns of the `VALUES` table on the `schema:name`
-  row, `UNDEF` on the others. The spellings, which would multiply that row,
-  are joined to the `rdf:type` row instead, which constructs nothing itself, by
-  an `OPTIONAL` that binds `?property`. A `UNION` branch of their own runs
-  QLever out of memory, and QLever evaluates a `FILTER` inside an `OPTIONAL`
-  without the variables outside it, so filtering on `?property` there drops
-  every spelling. The given and family names, which the reconstructions do not
-  state, come from the observations on the same row, through one
-  property/value pattern with a `VALUES` table of its own. In an `OPTIONAL`
-  per property they would multiply: one observation states 22 names, 16
-  alternate names, 16 given names and 9 family names.
+  row, `UNDEF` on the others. The spellings, and the given and family names,
+  which the reconstructions do not state, come from the observations in a
+  `UNION` branch of their own, through one property/value pattern with a
+  `VALUES` table of its own. In an `OPTIONAL` per property they would
+  multiply: one observation states 22 names, 16 alternate names, 16 given
+  names and 9 family names. Both branches repeat the search subquery, which
+  QLever computes once and caches: without it, QLever evaluates the branch, or
+  an `OPTIONAL`, over every observation in the dataset before joining it to
+  the results. A branch without the subquery ran QLever out of memory, and an
+  `OPTIONAL` took 2.4 of a search’s 3.3 seconds; with the subquery, the
+  branch takes 10 milliseconds. The Network of Terms replaces every `#LIMIT#`,
+  so both subqueries find the same persons.
 - Regiotermen Fryslân: in the branch with the name, as for the Gouda
   Tijdmachine. Its GraphDB endpoint does not repeat triples, but the query
   follows the same rule, so it doesn’t depend on that.
 
 A person the bound row misses loses its classes, and the Network of Terms then
 leaves it out. Counted on 2026-11-02: every Gouda Tijdmachine and WO2-personen
-reconstruction has exactly one name, and every WO2-personen reconstruction
-exactly one type. Counted on 2026-11-10: every Regiotermen Fryslân person has
-exactly one name.
+reconstruction has exactly one name. Counted on 2026-11-10: every Regiotermen
+Fryslân person has exactly one name.
 
 Some duplicates remain, and are not worth a more complex query: a relative or
 place that several persons in a result share is described once for each of
@@ -109,9 +110,9 @@ On 2026-11-05, 248513 observations did include it, such as ‘de Vries’. The
 queries take the prefix from the observation’s name: the lowercase words
 before the family name at the end of it. A family name that is not at the end
 of the name, or follows no lowercase word, is returned as the source states it.
-They do this in a `BIND` at the end of the query, after the joins: inside the
-`OPTIONAL`, QLever computes it for every observation in the dataset, which
-took a search from 1 to 15 seconds.
+They do this in a `BIND` after the joins: inside an `OPTIONAL`, QLever
+computes it for every observation in the dataset, which took a search from 1
+to 15 seconds.
 
 For ‘Jan Jansen’ at a limit of 1000, this made the search responses 53–79%
 smaller – Open Archieven from 11.6 to 4.4 MB – with the same distinct triples.
