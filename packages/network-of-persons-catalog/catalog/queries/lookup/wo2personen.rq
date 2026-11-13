@@ -10,7 +10,7 @@ CONSTRUCT {
         ?constructedProperty ?value ;
         ?constructedObservationProperty ?observationValue ;
         schema:familyName ?familyName .
-    ?value schema:name ?relativeName .
+    ?value schema:name ?relativeName, ?placeName .
 }
 # See the search query, queries/search/wo2personen.rq, for how the properties are read.
 WHERE {
@@ -41,6 +41,11 @@ WHERE {
     OPTIONAL {
         ?value a picom:PersonReconstruction ;
             schema:name ?relativeName .
+    }
+
+    # A place the source identifies is a WO2 Thesaurus location, named by its preferred label.
+    OPTIONAL {
+        ?value skos:prefLabel ?placeName .
     }
 
     OPTIONAL {

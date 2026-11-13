@@ -10,7 +10,7 @@ CONSTRUCT {
         ?constructedProperty ?value ;
         ?constructedObservationProperty ?observationValue ;
         schema:familyName ?familyName .
-    ?value schema:name ?relativeName .
+    ?value schema:name ?relativeName, ?placeName .
 }
 WHERE {
     # Each branch repeats the search subquery, which QLever computes once and caches, so that each
@@ -51,7 +51,7 @@ WHERE {
         # another property. A UNION branch per property is evaluated for the whole dataset before
         # it is joined to the results, which took a search from 1 to 19 seconds. A place is stated
         # as a name and, for some persons, as a WO2 Thesaurus location beside it, with nothing
-        # pairing the two; both are constructed as the source states them.
+        # pairing the two; both are constructed, the location named by its preferred label below.
         #
         # Every reconstruction has exactly one name, so the name row constructs the classes once
         # per person. See “Triples a person has once come from one row” in the catalog README.
@@ -79,6 +79,11 @@ WHERE {
         OPTIONAL {
             ?value a picom:PersonReconstruction ;
                 schema:name ?relativeName .
+        }
+
+        # A place the source identifies is a WO2 Thesaurus location, named by its preferred label.
+        OPTIONAL {
+            ?value skos:prefLabel ?placeName .
         }
     }
     UNION
